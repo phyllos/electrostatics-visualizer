@@ -1,4 +1,7 @@
 import { useState } from "react";
+
+import { InlineMath, BlockMath } from "react-katex";
+
 import "./App.css";
 
 type ChargeDistribution = "solid" | "shell";
@@ -318,22 +321,38 @@ function App() {
           </p>
 
           <div className="physics-equation">
-            E<sub>0</sub> = k|Q| / R<sup>2</sup>
+            <BlockMath
+              math={String.raw`
+                E_0 = \frac{k|Q|}{R^2}
+              `}
+            />
           </div>
 
           <p>
-            <strong>E<sub>0</sub> = {E0.toExponential(3)} N/C</strong>
+            <strong>
+              When <InlineMath math="R" /> = {radius.toFixed(1)} cm,
+              {" "}
+              <InlineMath math="E_0" /> = {E0.toExponential(3)} N/C
+            </strong>
           </p>
 
           <p>
-            Here, Q is the total charge, R is the sphere
-            radius, and k is Coulomb's constant.
+            Here, <InlineMath math="Q" /> is the total
+            charge, <InlineMath math="R" /> is the sphere
+            radius, and <InlineMath math="k" /> is
+            Coulomb's constant.
           </p>
 
           <p>
-            The normalized coordinates E/E<sub>0</sub> and r/R
-            allow us to compare spheres of different
-            sizes using the same curve.
+            The normalized coordinates{" "}
+
+            <InlineMath math="E/E_0" />
+
+            {" and "}
+
+            <InlineMath math="r/R" />
+
+            {" allow us to compare spheres of different sizes using the same curve."}
           </p>
 
         </div>

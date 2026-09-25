@@ -136,12 +136,13 @@ select {
 }
 
 .physics-equation {
-  font-family: Georgia, serif;
-  font-size: 22px;
+  font-size: 20px;
 
   text-align: center;
   padding: 14px;
 
   color: #1d4ed8;
+
+  overflow-x: auto;
 }
 
