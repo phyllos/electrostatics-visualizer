@@ -14,9 +14,19 @@ function App() {
   const [distribution, setDistribution] =
     useState<ChargeDistribution>("solid");
 
+  // Sphere radius in cm
   const [radius, setRadius] = useState(2);
 
-  const [x, setX] = useState(0.6);
+  // Gaussian surface radius in cm
+  const [observationRadius, setObservationRadius] =
+    useState(1.2);
+
+  // Graph display mode
+  const [plotMode, setPlotMode] =
+    useState<"normalized" | "physical">("normalized");
+
+  // Dimensionless observation radius
+  const x = observationRadius / radius;
 
   // x = r / R
   const fieldRatio = (t: number) => {
@@ -49,34 +59,107 @@ function App() {
 
   const enclosedCharge = Q * enclosedChargeRatio(x);
 
-  // Electric field plot
+  // ==========================================
+  // Electric Field Plot
+  // ==========================================
+
+  // Maximum horizontal axis value
+
+  const plotXMax =
+    plotMode === "normalized"
+      ? Math.max(2.4, x * 1.1)
+      : 10;
+
+  // Maximum vertical axis value
+
+  const plotYMax =
+    plotMode === "normalized"
+      ? 1
+      : E0;
+
+
+  // Convert horizontal coordinate to r/R
+
+  const getRatio = (position: number) => {
+
+    if (plotMode === "normalized") {
+      return position;
+    }
+
+    return position / radius;
+
+  };
+
+
+  // Generate graph points
+
   const plotPoints = Array.from(
-    { length: 241 },
+    { length: 401 },
     (_, i) => {
-      const t = (i / 240) * 2.4;
 
-      const px = 40 + (t / 2.4) * 430;
+      const position =
+        (i / 400) * plotXMax;
 
-      const py = 220 - fieldRatio(t) * 165;
+      const ratio = getRatio(position);
+
+      const fieldValue =
+        plotMode === "normalized"
+          ? fieldRatio(ratio)
+          : E0 * fieldRatio(ratio);
+
+      const px =
+        40 + (position / plotXMax) * 430;
+
+      const py =
+        220 - (fieldValue / plotYMax) * 165;
 
       return `${px},${py}`;
+
     }
   ).join(" ");
+
+
+  // Observation point
+
+  const markerPosition =
+    plotMode === "normalized"
+      ? x
+      : observationRadius;
+
+  const markerValue =
+    plotMode === "normalized"
+      ? fieldRatio(x)
+      : electricField;
+
+  const markerX =
+    40 + (markerPosition / plotXMax) * 430;
+
+  const markerY =
+    220 - (markerValue / plotYMax) * 165;
+
+
+  // Charged sphere boundary
+
+  const surfacePosition =
+    plotMode === "normalized"
+      ? 1
+      : radius;
+
+  const surfaceX =
+    40 + (surfacePosition / plotXMax) * 430;
+
 
 // Visualization scale
 // 17.5 SVG units = 1 cm
 
-  const visualizationScale = 17.5;
+    const visualizationScale = 17.5;
 
-  const sphereVisualRadius =
-    radius * visualizationScale;
+    const sphereVisualRadius =
+      radius * visualizationScale;
 
-  const gaussianVisualRadius =
-    radius * x * visualizationScale;
+    const gaussianVisualRadius =
+      radius * x * visualizationScale;
 
-  const markerX = 40 + (x / 2.4) * 430;
-
-  const markerY = 220 - fieldRatio(x) * 165;
 
   return (
     <main className="app">
@@ -131,17 +214,18 @@ function App() {
           />
 
           <label>
-            Observation Radius: r/R = {x.toFixed(2)}
+            Gaussian Surface Radius (r):{" "}
+            {observationRadius.toFixed(2)} cm
           </label>
 
           <input
             type="range"
             min="0"
-            max="2.4"
-            step="0.01"
-            value={x}
+            max="10"
+            step="0.05"
+            value={observationRadius}
             onChange={(e) =>
-              setX(Number(e.target.value))
+              setObservationRadius(Number(e.target.value))
             }
           />
 
@@ -150,16 +234,16 @@ function App() {
             <h3>Results</h3>
 
             <p>
+              r/R = {x.toFixed(3)}
+            </p>
+
+            <p>
               E = {electricField.toExponential(3)} N/C
             </p>
 
             <p>
               Q enclosed ={" "}
               {(enclosedCharge * 1e9).toFixed(3)} nC
-            </p>
-
-            <p>
-              r = {(x * radius).toFixed(2)} cm
             </p>
 
           </div>
@@ -250,6 +334,34 @@ function App() {
 
         <h2>Electric Field vs. Radius</h2>
 
+        <div className="plot-controls">
+
+          <label htmlFor="plot-mode">
+            Graph Mode
+          </label>
+
+          <select
+            id="plot-mode"
+            value={plotMode}
+            onChange={(e) =>
+              setPlotMode(
+                e.target.value as "normalized" | "physical"
+              )
+            }
+          >
+
+            <option value="normalized">
+              Normalized (E/E₀ vs. r/R)
+            </option>
+
+            <option value="physical">
+              Physical (E vs. r)
+            </option>
+
+          </select>
+
+        </div>
+
         <svg
           viewBox="0 0 500 270"
           className="plot"
@@ -272,9 +384,9 @@ function App() {
           />
 
           <line
-            x1={40 + 430 / 2.4}
+            x1={surfaceX}
             y1="30"
-            x2={40 + 430 / 2.4}
+            x2={surfaceX}
             y2="220"
             stroke="#aaa"
             strokeDasharray="5 5"
@@ -295,22 +407,42 @@ function App() {
           />
 
           <text x="8" y="25">
-            E / E₀
+
+            {plotMode === "normalized"
+              ? "E / E₀"
+              : "E (N/C)"}
+
           </text>
 
-          <text x="450" y="250">
-            r / R
+          <text x="435" y="250">
+
+            {plotMode === "normalized"
+              ? "r / R"
+              : "r (cm)"}
+
           </text>
 
           <text
-            x={40 + 430 / 2.4}
+            x={surfaceX}
             y="245"
             textAnchor="middle"
           >
             R
           </text>
 
+          <text
+            x="34"
+            y="59"
+            textAnchor="end"
+            fontSize="12"
+          >
+            {plotMode === "normalized"
+              ? "1"
+              : E0.toExponential(2)}
+          </text>
+
         </svg>
+
         <div className="physics-note">
 
           <h3>Understanding the Graph</h3>
@@ -343,17 +475,31 @@ function App() {
             Coulomb's constant.
           </p>
 
-          <p>
-            The normalized coordinates{" "}
+          {plotMode === "normalized" ? (
 
-            <InlineMath math="E/E_0" />
+            <p>
+              The normalized coordinates{" "}
 
-            {" and "}
+              <InlineMath math="E/E_0" />
 
-            <InlineMath math="r/R" />
+              {" and "}
 
-            {" allow us to compare spheres of different sizes using the same curve."}
-          </p>
+              <InlineMath math="r/R" />
+
+              {" allow us to compare spheres of different sizes using the same curve."}
+            </p>
+
+          ) : (
+
+            <p>
+              The physical coordinates show the actual
+              electric field in N/C as a function of
+              distance from the center in cm.
+              Changing the sphere radius changes
+              the electric field distribution.
+            </p>
+
+          )}
 
         </div>
 

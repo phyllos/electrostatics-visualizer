@@ -146,3 +146,20 @@ select {
   overflow-x: auto;
 }
 
+.plot-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  margin: 18px 0 24px;
+}
+
+.plot-controls label {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.plot-controls select {
+  width: auto;
+  min-width: 220px;
+}
