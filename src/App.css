@@ -1,0 +1,102 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: Arial, sans-serif;
+}
+
+.app {
+  max-width: 1200px;
+  margin: auto;
+  padding: 40px 24px;
+}
+
+header {
+  margin-bottom: 40px;
+}
+
+header h1 {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+header p {
+  color: #64748b;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 24px;
+}
+
+.panel {
+  background: white;
+  padding: 28px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 24px;
+}
+
+.panel h2 {
+  margin-top: 0;
+}
+
+label {
+  display: block;
+  margin-top: 24px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+select,
+input {
+  width: 100%;
+}
+
+select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+.results {
+  background: #f1f5f9;
+  padding: 16px;
+  margin-top: 30px;
+  border-radius: 8px;
+}
+
+.diagram {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  margin: auto;
+}
+
+.plot {
+  display: block;
+  width: 100%;
+  max-width: 850px;
+}
+
+.caption {
+  text-align: center;
+  color: #64748b;
+}
+
+@media (max-width: 700px) {
+
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .app {
+    padding: 20px 12px;
+  }
+
+}

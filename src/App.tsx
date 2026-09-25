@@ -1,0 +1,290 @@
+import { useState } from "react";
+import "./App.css";
+
+type ChargeDistribution = "solid" | "shell";
+
+const k = 8.9875517923e9;
+
+const Q = 5e-9; // Coulombs
+
+function App() {
+  const [distribution, setDistribution] =
+    useState<ChargeDistribution>("solid");
+
+  const [radius, setRadius] = useState(2);
+
+  const [x, setX] = useState(0.6);
+
+  // x = r / R
+  const fieldRatio = (t: number) => {
+    if (distribution === "solid" && t < 1) {
+      return t;
+    }
+
+    if (distribution === "shell" && t < 1) {
+      return 0;
+    }
+
+    return 1 / (t * t);
+  };
+
+  const enclosedChargeRatio = (t: number) => {
+    if (distribution === "solid") {
+      return t < 1 ? t ** 3 : 1;
+    }
+
+    return t < 1 ? 0 : 1;
+  };
+
+  // Convert cm to meters
+  const R = radius / 100;
+
+  // Electric field at the surface
+  const E0 = (k * Q) / (R * R);
+
+  const electricField = E0 * fieldRatio(x);
+
+  const enclosedCharge = Q * enclosedChargeRatio(x);
+
+  // Electric field plot
+  const plotPoints = Array.from(
+    { length: 241 },
+    (_, i) => {
+      const t = (i / 240) * 2.4;
+
+      const px = 40 + (t / 2.4) * 430;
+
+      const py = 220 - fieldRatio(t) * 165;
+
+      return `${px},${py}`;
+    }
+  ).join(" ");
+
+  const markerX = 40 + (x / 2.4) * 430;
+
+  const markerY = 220 - fieldRatio(x) * 165;
+
+  return (
+    <main className="app">
+
+      <header>
+        <h1>Electrostatics Visualizer</h1>
+
+        <p>
+          Explore electric fields and charge distributions
+          interactively.
+        </p>
+      </header>
+
+      <section className="layout">
+
+        <div className="panel">
+
+          <h2>Parameters</h2>
+
+          <label>Charge Distribution</label>
+
+          <select
+            value={distribution}
+            onChange={(e) =>
+              setDistribution(
+                e.target.value as ChargeDistribution
+              )
+            }
+          >
+            <option value="solid">
+              Uniform Solid Sphere
+            </option>
+
+            <option value="shell">
+              Spherical Shell
+            </option>
+          </select>
+
+          <label>
+            Sphere Radius: {radius.toFixed(1)} cm
+          </label>
+
+          <input
+            type="range"
+            min="1"
+            max="5"
+            step="0.1"
+            value={radius}
+            onChange={(e) =>
+              setRadius(Number(e.target.value))
+            }
+          />
+
+          <label>
+            Observation Radius: r/R = {x.toFixed(2)}
+          </label>
+
+          <input
+            type="range"
+            min="0"
+            max="2.4"
+            step="0.01"
+            value={x}
+            onChange={(e) =>
+              setX(Number(e.target.value))
+            }
+          />
+
+          <div className="results">
+
+            <h3>Results</h3>
+
+            <p>
+              E = {electricField.toExponential(3)} N/C
+            </p>
+
+            <p>
+              Q enclosed ={" "}
+              {(enclosedCharge * 1e9).toFixed(3)} nC
+            </p>
+
+            <p>
+              r = {(x * radius).toFixed(2)} cm
+            </p>
+
+          </div>
+
+        </div>
+
+        <div className="panel">
+
+          <h2>Charge Distribution</h2>
+
+          <svg
+            viewBox="0 0 520 520"
+            className="diagram"
+          >
+
+            {distribution === "solid" ? (
+
+              <circle
+                cx="260"
+                cy="260"
+                r="95"
+                fill="#fda4af"
+                fillOpacity="0.55"
+                stroke="#e11d48"
+                strokeWidth="2"
+              />
+
+            ) : (
+
+              <circle
+                cx="260"
+                cy="260"
+                r="95"
+                fill="none"
+                stroke="#e11d48"
+                strokeWidth="5"
+              />
+
+            )}
+
+            <circle
+              cx="260"
+              cy="260"
+              r={95 * x}
+              fill="none"
+              stroke="#2563eb"
+              strokeWidth="2"
+              strokeDasharray="7 5"
+            />
+
+            <circle
+              cx="260"
+              cy="260"
+              r="4"
+              fill="#111827"
+            />
+
+          </svg>
+
+          <p className="caption">
+            Red: Charge Distribution
+            <br />
+            Blue: Gaussian Surface
+          </p>
+
+        </div>
+
+      </section>
+
+      <section className="panel">
+
+        <h2>Electric Field vs. Radius</h2>
+
+        <svg
+          viewBox="0 0 500 270"
+          className="plot"
+        >
+
+          <line
+            x1="40"
+            y1="220"
+            x2="480"
+            y2="220"
+            stroke="black"
+          />
+
+          <line
+            x1="40"
+            y1="220"
+            x2="40"
+            y2="30"
+            stroke="black"
+          />
+
+          <line
+            x1={40 + 430 / 2.4}
+            y1="30"
+            x2={40 + 430 / 2.4}
+            y2="220"
+            stroke="#aaa"
+            strokeDasharray="5 5"
+          />
+
+          <polyline
+            points={plotPoints}
+            fill="none"
+            stroke="#2563eb"
+            strokeWidth="3"
+          />
+
+          <circle
+            cx={markerX}
+            cy={markerY}
+            r="6"
+            fill="#e11d48"
+          />
+
+          <text x="8" y="25">
+            E / E₀
+          </text>
+
+          <text x="450" y="250">
+            r / R
+          </text>
+
+          <text
+            x={40 + 430 / 2.4}
+            y="245"
+            textAnchor="middle"
+          >
+            R
+          </text>
+
+        </svg>
+
+      </section>
+
+    </main>
+  );
+}
+
+export default App;
