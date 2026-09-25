@@ -60,6 +60,17 @@ function App() {
     }
   ).join(" ");
 
+// Visualization scale
+// 17.5 SVG units = 1 cm
+
+  const visualizationScale = 17.5;
+
+  const sphereVisualRadius =
+    radius * visualizationScale;
+
+  const gaussianVisualRadius =
+    radius * x * visualizationScale;
+
   const markerX = 40 + (x / 2.4) * 430;
 
   const markerY = 220 - fieldRatio(x) * 165;
@@ -166,7 +177,7 @@ function App() {
               <circle
                 cx="260"
                 cy="260"
-                r="95"
+                r={sphereVisualRadius}
                 fill="#fda4af"
                 fillOpacity="0.55"
                 stroke="#e11d48"
@@ -178,7 +189,7 @@ function App() {
               <circle
                 cx="260"
                 cy="260"
-                r="95"
+                r={sphereVisualRadius}
                 fill="none"
                 stroke="#e11d48"
                 strokeWidth="5"
@@ -189,7 +200,7 @@ function App() {
             <circle
               cx="260"
               cy="260"
-              r={95 * x}
+              r={gaussianVisualRadius}
               fill="none"
               stroke="#2563eb"
               strokeWidth="2"
