@@ -4,7 +4,7 @@
 // Physical Constants
 // ==========================================
 
-export const COULOMB_CONSTANT = 8.9875517923e9;
+import { COULOMB_CONSTANT } from "./constants";
 
 
 // ==========================================
