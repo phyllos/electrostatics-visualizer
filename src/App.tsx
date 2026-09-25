@@ -1,13 +1,17 @@
 import { useState } from "react";
 
-import { InlineMath, BlockMath } from "react-katex";
-
 import {
   fieldRatio as calculateFieldRatio,
   enclosedChargeRatio as calculateEnclosedChargeRatio,
   surfaceFieldMagnitude,
   type ChargeDistribution,
 } from "./physics/sphere";
+
+import ControlPanel from "./components/ControlPanel";
+
+import ChargeVisualization from "./components/ChargeVisualization";
+
+import PhysicsNotes from "./components/PhysicsNotes";
 
 import "./App.css";
 
@@ -167,16 +171,7 @@ function App() {
     }
   ).join(" ");
 
-// Visualization scale
-// 17.5 SVG units = 1 cm
-
-    const visualizationScale = 17.5;
-
-    const sphereVisualRadius =
-      radius * visualizationScale;
-
-    const gaussianVisualRadius =
-      radius * x * visualizationScale;
+// Visualization, Physics notes and ControlPanel in components/.
 
 
   return (
@@ -193,158 +188,38 @@ function App() {
 
       <section className="layout">
 
-        <div className="panel">
+        <ControlPanel
 
-          <h2>Parameters</h2>
+          distribution={distribution}
 
-          <label>Charge Distribution</label>
+          onDistributionChange={setDistribution}
 
-          <select
-            value={distribution}
-            onChange={(e) =>
-              setDistribution(
-                e.target.value as ChargeDistribution
-              )
-            }
-          >
-            <option value="solid">
-              Uniform Solid Sphere
-            </option>
+          radius={radius}
 
-            <option value="shell">
-              Spherical Shell
-            </option>
-          </select>
+          onRadiusChange={setRadius}
 
-          <label>
-            Sphere Radius: {radius.toFixed(1)} cm
-          </label>
+          observationRadius={observationRadius}
 
-          <input
-            type="range"
-            min="1"
-            max="5"
-            step="0.1"
-            value={radius}
-            onChange={(e) =>
-              setRadius(Number(e.target.value))
-            }
-          />
+          onObservationRadiusChange={setObservationRadius}
 
-          <label>
-            Gaussian Surface Radius (r):{" "}
-            {observationRadius.toFixed(2)} cm
-          </label>
+          fieldRatio={x}
 
-          <input
-            type="range"
-            min="0.05"
-            max="10"
-            step="0.05"
-            value={observationRadius}
-            onChange={(e) =>
-              setObservationRadius(Number(e.target.value))
-            }
-          />
+          electricField={electricField}
 
-          <div className="results">
+          enclosedCharge={enclosedCharge}
 
-            <h3>Results</h3>
+        />
 
-            <p>
-              r/R = {x.toFixed(3)}
-            </p>
 
-            <p>
-              E = {electricField.toExponential(3)} N/C
-            </p>
+        <ChargeVisualization
 
-            <p>
-              Q enclosed ={" "}
-              {(enclosedCharge * 1e9).toFixed(3)} nC
-            </p>
+          distribution={distribution}
 
-          </div>
+          radius={radius}
 
-        </div>
+          observationRadius={observationRadius}
 
-        <div className="panel">
-
-          <h2>Charge Distribution</h2>
-
-          <svg
-            viewBox="0 0 520 520"
-            className="diagram"
-          >
-
-            {distribution === "solid" ? (
-
-              <circle
-                cx="260"
-                cy="260"
-                r={sphereVisualRadius}
-                fill="#fda4af"
-                fillOpacity="0.55"
-                stroke="#e11d48"
-                strokeWidth="2"
-              />
-
-            ) : (
-
-              <circle
-                cx="260"
-                cy="260"
-                r={sphereVisualRadius}
-                fill="none"
-                stroke="#e11d48"
-                strokeWidth="5"
-              />
-
-            )}
-
-            <circle
-              cx="260"
-              cy="260"
-              r={gaussianVisualRadius}
-              fill="none"
-              stroke="#2563eb"
-              strokeWidth="2"
-              strokeDasharray="7 5"
-            />
-
-            <circle
-              cx="260"
-              cy="260"
-              r="4"
-              fill="#111827"
-            />
-
-          </svg>
-
-          <div className="caption">
-
-            <p>
-              <strong style={{ color: "#e11d48" }}>
-                Red:
-              </strong>{" "}
-              Charged sphere (R)
-            </p>
-
-            <p>
-              <strong style={{ color: "#2563eb" }}>
-                Blue dashed circle:
-              </strong>{" "}
-              Gaussian surface (r)
-            </p>
-
-            <p className="caption-note">
-              The Gaussian surface is an imaginary closed
-              surface used to calculate electric flux.
-            </p>
-
-          </div>
-
-        </div>
+        />
 
       </section>
 
@@ -517,65 +392,15 @@ function App() {
 
         </svg>
 
-        <div className="physics-note">
+        <PhysicsNotes
 
-          <h3>Understanding the Graph</h3>
+          radius={radius}
 
-          <p>
-            The electric field is normalized by its
-            magnitude at the sphere's surface:
-          </p>
+          surfaceField={E0}
 
-          <div className="physics-equation">
-            <BlockMath
-              math={String.raw`
-                E_0 = \frac{k|Q|}{R^2}
-              `}
-            />
-          </div>
+          plotMode={plotMode}
 
-          <p>
-            <strong>
-              When <InlineMath math="R" /> = {radius.toFixed(1)} cm,
-              {" "}
-              <InlineMath math="E_0" /> = {E0.toExponential(3)} N/C
-            </strong>
-          </p>
-
-          <p>
-            Here, <InlineMath math="Q" /> is the total
-            charge, <InlineMath math="R" /> is the sphere
-            radius, and <InlineMath math="k" /> is
-            Coulomb's constant.
-          </p>
-
-          {plotMode === "normalized" ? (
-
-            <p>
-              The normalized coordinates{" "}
-
-              <InlineMath math="E/E_0" />
-
-              {" and "}
-
-              <InlineMath math="r/R" />
-
-              {" allow us to compare spheres of different sizes using the same curve."}
-            </p>
-
-          ) : (
-
-            <p>
-              The physical coordinates show the actual
-              electric field in N/C as a function of
-              distance from the center in cm.
-              Changing the sphere radius changes
-              the electric field distribution.
-            </p>
-
-          )}
-
-        </div>
+        />
 
       </section>
 
