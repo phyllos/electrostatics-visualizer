@@ -2,11 +2,14 @@ import { useState } from "react";
 
 import { InlineMath, BlockMath } from "react-katex";
 
+import {
+  fieldRatio as calculateFieldRatio,
+  enclosedChargeRatio as calculateEnclosedChargeRatio,
+  surfaceFieldMagnitude,
+  type ChargeDistribution,
+} from "./physics/sphere";
+
 import "./App.css";
-
-type ChargeDistribution = "solid" | "shell";
-
-const k = 8.9875517923e9;
 
 const Q = 5e-9; // Coulombs
 
@@ -29,31 +32,17 @@ function App() {
   const x = observationRadius / radius;
 
   // x = r / R
-  const fieldRatio = (t: number) => {
-    if (distribution === "solid" && t < 1) {
-      return t;
-    }
+  const fieldRatio = (t: number) =>
+    calculateFieldRatio(distribution, t);
 
-    if (distribution === "shell" && t < 1) {
-      return 0;
-    }
-
-    return 1 / (t * t);
-  };
-
-  const enclosedChargeRatio = (t: number) => {
-    if (distribution === "solid") {
-      return t < 1 ? t ** 3 : 1;
-    }
-
-    return t < 1 ? 0 : 1;
-  };
+  const enclosedChargeRatio = (t: number) =>
+    calculateEnclosedChargeRatio(distribution, t);
 
   // Convert cm to meters
   const R = radius / 100;
 
   // Electric field at the surface
-  const E0 = (k * Q) / (R * R);
+  const E0 = surfaceFieldMagnitude(Q, R);
 
   const electricField = E0 * fieldRatio(x);
 
@@ -148,6 +137,35 @@ function App() {
   const surfaceX =
     40 + (surfacePosition / plotXMax) * 430;
 
+  // ==========================================
+  // Spherical shell: outside field curve
+  // ==========================================
+
+  const shellOutsidePoints = Array.from(
+    { length: 401 },
+    (_, i) => {
+
+      const position =
+        surfacePosition +
+        (i / 400) * (plotXMax - surfacePosition);
+
+      const ratio = getRatio(position);
+
+      const fieldValue =
+        plotMode === "normalized"
+          ? fieldRatio(ratio)
+          : E0 * fieldRatio(ratio);
+
+      const px =
+        40 + (position / plotXMax) * 430;
+
+      const py =
+        220 - (fieldValue / plotYMax) * 165;
+
+      return `${px},${py}`;
+
+    }
+  ).join(" ");
 
 // Visualization scale
 // 17.5 SVG units = 1 cm
@@ -220,7 +238,7 @@ function App() {
 
           <input
             type="range"
-            min="0"
+            min="0.05"
             max="10"
             step="0.05"
             value={observationRadius}
@@ -392,12 +410,68 @@ function App() {
             strokeDasharray="5 5"
           />
 
-          <polyline
-            points={plotPoints}
-            fill="none"
-            stroke="#2563eb"
-            strokeWidth="3"
-          />
+          {distribution === "solid" ? (
+
+            // Uniform Solid Sphere
+
+            <polyline
+              points={plotPoints}
+              fill="none"
+              stroke="#2563eb"
+              strokeWidth="3"
+            />
+
+          ) : (
+
+            // Uniform Spherical Shell
+
+            <>
+
+              {/* Inside: E = 0 */}
+
+              <line
+                x1="40"
+                y1="220"
+                x2={surfaceX}
+                y2="220"
+                stroke="#2563eb"
+                strokeWidth="3"
+              />
+
+              {/* Outside: E = kQ/r² */}
+
+              <polyline
+                points={shellOutsidePoints}
+                fill="none"
+                stroke="#2563eb"
+                strokeWidth="3"
+              />
+
+              {/* Inner limit: E(R-) = 0 */}
+
+              <circle
+                cx={surfaceX}
+                cy="220"
+                r="5"
+                fill="white"
+                stroke="#2563eb"
+                strokeWidth="2"
+              />
+
+              {/* Outer limit: E(R+) = E0 */}
+
+              <circle
+                cx={surfaceX}
+                cy="55"
+                r="5"
+                fill="#2563eb"
+                stroke="#2563eb"
+                strokeWidth="2"
+              />
+
+            </>
+
+          )}
 
           <circle
             cx={markerX}
