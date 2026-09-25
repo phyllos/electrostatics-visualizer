@@ -216,11 +216,28 @@ function App() {
 
           </svg>
 
-          <p className="caption">
-            Red: Charge Distribution
-            <br />
-            Blue: Gaussian Surface
-          </p>
+          <div className="caption">
+
+            <p>
+              <strong style={{ color: "#e11d48" }}>
+                Red:
+              </strong>{" "}
+              Charged sphere (R)
+            </p>
+
+            <p>
+              <strong style={{ color: "#2563eb" }}>
+                Blue dashed circle:
+              </strong>{" "}
+              Gaussian surface (r)
+            </p>
+
+            <p className="caption-note">
+              The Gaussian surface is an imaginary closed
+              surface used to calculate electric flux.
+            </p>
+
+          </div>
 
         </div>
 
@@ -291,6 +308,35 @@ function App() {
           </text>
 
         </svg>
+        <div className="physics-note">
+
+          <h3>Understanding the Graph</h3>
+
+          <p>
+            The electric field is normalized by its
+            magnitude at the sphere's surface:
+          </p>
+
+          <div className="physics-equation">
+            E<sub>0</sub> = k|Q| / R<sup>2</sup>
+          </div>
+
+          <p>
+            <strong>E<sub>0</sub> = {E0.toExponential(3)} N/C</strong>
+          </p>
+
+          <p>
+            Here, Q is the total charge, R is the sphere
+            radius, and k is Coulomb's constant.
+          </p>
+
+          <p>
+            The normalized coordinates E/E<sub>0</sub> and r/R
+            allow us to compare spheres of different
+            sizes using the same curve.
+          </p>
+
+        </div>
 
       </section>
 

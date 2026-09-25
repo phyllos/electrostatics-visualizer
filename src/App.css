@@ -101,3 +101,47 @@ select {
 
 }
 
+.caption p {
+  margin: 6px 0;
+}
+
+.caption-note {
+  margin-top: 14px !important;
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.physics-note {
+  margin-top: 24px;
+  padding: 20px 24px;
+
+  background: #f8fafc;
+
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
+
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.physics-note h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
+
+.physics-note p {
+  color: #475569;
+  margin: 8px 0;
+}
+
+.physics-equation {
+  font-family: Georgia, serif;
+  font-size: 22px;
+
+  text-align: center;
+  padding: 14px;
+
+  color: #1d4ed8;
+}
+
