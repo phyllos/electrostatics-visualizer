@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import type { SphericalDistribution } from "../physics/sphere";
+import { densityShape } from "../physics/radialDensity";
 import { useElementWidth } from "../hooks/useElementWidth";
 
 type ChargeVisualizationProps = {
@@ -10,6 +11,8 @@ type ChargeVisualizationProps = {
   observationRadius: number;
 };
 
+const DENSITY_STOP_COUNT = 21;
+
 export default function ChargeVisualization({
   distribution,
   radius,
@@ -17,6 +20,7 @@ export default function ChargeVisualization({
 }: ChargeVisualizationProps) {
   const { ref, width } = useElementWidth(300);
   const clipId = useId();
+  const densityGradientId = useId();
 
   // Keep the displayed scale fixed while dragging.
   // This makes changes in the physical radius visually meaningful.
@@ -35,14 +39,67 @@ export default function ChargeVisualization({
     ) /
     (2 * halfSpan);
 
-  const sphereRadius = radius * scale;
+  const sphereRadius = 
+    radius * scale;
   const gaussianRadius =
     observationRadius * scale;
 
   // Warn when either surface extends beyond the current view.
   const outside =
-    Math.max(radius, observationRadius) >
+    Math.max(
+      radius, 
+      observationRadius,
+    ) >
     halfSpan;
+
+  // ==========================================
+  // Relative Radial Density Visualization
+  // ==========================================
+
+  // Sample rho(r) / rho0 from the center
+  // (x = 0) to the sphere surface (x = 1).
+  const densityStops =
+    distribution.kind === "volume"
+      ? Array.from(
+          {
+            length: DENSITY_STOP_COUNT,
+          },
+
+          (_, index) => {
+            const x =
+              index /
+              (DENSITY_STOP_COUNT - 1);
+
+            const density =
+              densityShape(
+                distribution.densityModel,
+                x,
+              );
+
+            return {
+              x,
+              density:
+                Math.max(
+                  0,
+                  density,
+                ),
+            };
+          },
+        )
+      : [];
+
+  // Normalize the visual intensity so the gradient
+  // represents the shape of the selected density profile.
+  const maxDensity =
+    densityStops.length > 0
+      ? Math.max(
+          ...densityStops.map(
+            (stop) =>
+              stop.density,
+          ),
+        )
+      : 1;
+
 
   return (
     <section className="panel charge-panel">
@@ -64,28 +121,78 @@ export default function ChargeVisualization({
                 height={height}
               />
             </clipPath>
+
+            {/* Radial charge-density gradient */}
+            {distribution.kind === "volume" && (
+              <radialGradient
+                id={densityGradientId}
+                cx="50%"
+                cy="50%"
+                r="50%"
+              >
+                {densityStops.map(
+                  ({
+                    x,
+                    density,
+                  }) => {
+                    const relativeDensity =
+                      maxDensity > 0
+                        ? density /
+                          maxDensity
+                        : 0;
+
+                    return (
+                      <stop
+                        key={x}
+                        offset={`${x * 100}%`}
+                        stopColor="var(--sphere-fill)"
+                        stopOpacity={
+                          0.62 *
+                          relativeDensity
+                        }
+                      />
+                    );
+                  },
+                )}
+              </radialGradient>
+            )}
           </defs>
 
           {/* Keep all geometry inside the visible SVG area */}
           <g clipPath={`url(#${clipId})`}>
-            {/* Charged sphere or spherical shell */}
-            <circle
-              cx={cx}
-              cy={cy}
-              r={sphereRadius}
-              fill={
-                distribution.kind === "volume"
-                  ? "var(--sphere-fill)"
-                  : "none"
-              }
-              fillOpacity="0.55"
-              stroke="var(--sphere-line)"
-              strokeWidth={
-                distribution.kind === "volume"
-                  ? 2
-                  : 4
-              }
-            />
+            {distribution.kind === "volume" ? (
+              <>
+                {/* Very faint background shows the physical extent
+                    of the sphere even where rho = 0. */}
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={sphereRadius}
+                  fill="var(--sphere-fill)"
+                  fillOpacity="0.12"
+                />
+
+                {/* Density profile */}
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={sphereRadius}
+                  fill={`url(#${densityGradientId})`}
+                  stroke="var(--sphere-line)"
+                  strokeWidth="2"
+                />
+              </>
+            ) : (
+              /* Ideal spherical shell */
+              <circle
+                cx={cx}
+                cy={cy}
+                r={sphereRadius}
+                fill="none"
+                stroke="var(--sphere-line)"
+                strokeWidth="4"
+              />
+            )}
 
             {/* Gaussian surface */}
             <circle
@@ -166,13 +273,14 @@ export default function ChargeVisualization({
           className="view-notice"
           role="status"
         >
-          A surface is outside the view. Select
-          Fit view.
+          A surface is outside the view. Select Fit view.
         </p>
       )}
 
       <p className="caption">
-        2D cross-section of 3D spheres
+        {distribution.kind === "volume"
+          ? "Fill intensity ∝ relative charge density ρ(r)/ρ₀"
+          : "Charge is concentrated on the spherical surface"}
       </p>
     </section>
   );
