@@ -1,3 +1,104 @@
+/* ==========================================
+   Theme
+   ========================================== */
+
+:root {
+  color-scheme: light dark;
+
+  /* Backgrounds */
+  --page-bg: #f8fafc;
+  --panel-bg: #ffffff;
+  --control-bg: #ffffff;
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  /* Borders */
+  --border: #e2e8f0;
+  --border-control: #cbd5e1;
+
+  /* Plot */
+  --grid-line: #e2e8f0;
+  --axis-line: #64748b;
+  --surface-guide: #94a3b8;
+
+  /* Interactive UI */
+  --focus-ring: #93c5fd;
+
+  --active-button-bg: #0f172a;
+  --active-button-text: #ffffff;
+
+  /* Physics colors */
+  --sphere-fill: #fda4af;
+  --sphere-line: #e11d48;
+
+  --field-color: #2563eb;
+  --gaussian-color: #2563eb;
+
+  --probe-color: #7c3aed;
+  --equation-color: #1d4ed8;
+
+  /* Warning */
+  --warning-text: #92400e;
+
+  /* Slider */
+  --slider-track: #e2e8f0;
+  --slider-thumb: #ffffff;
+  --slider-thumb-border: #cbd5e1;
+
+  --slider-shadow:
+    0 2px 5px rgba(15, 23, 42, 0.20);
+}
+
+
+/* ==========================================
+   Dark Theme
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-bg: #0f141f;
+    --panel-bg: #18202e;
+    --control-bg: #202a3a;
+
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+
+    --border: #334155;
+    --border-control: #475569;
+
+    --grid-line: #334155;
+    --axis-line: #94a3b8;
+    --surface-guide: #64748b;
+
+    --focus-ring: #60a5fa;
+
+    --active-button-bg: #e2e8f0;
+    --active-button-text: #0f172a;
+
+    --sphere-fill: #fb7185;
+    --sphere-line: #fb7185;
+
+    --field-color: #60a5fa;
+    --gaussian-color: #60a5fa;
+
+    --probe-color: #c084fc;
+    --equation-color: #60a5fa;
+
+    --warning-text: #fbbf24;
+
+    --slider-track: #334155;
+    --slider-thumb: #f8fafc;
+    --slider-thumb-border: #64748b;
+
+    --slider-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.45);
+  }
+}
+
 
 /* ==========================================
    Global Styles
@@ -9,8 +110,10 @@
 
 body {
   margin: 0;
-  background: #f8fafc;
-  color: #0f172a;
+
+  background: var(--page-bg);
+  color: var(--text-primary);
+
   font-family: Arial, sans-serif;
 }
 
@@ -30,7 +133,7 @@ button:focus-visible,
 select:focus-visible,
 input:focus-visible,
 summary:focus-visible {
-  outline: 3px solid #93c5fd;
+  outline: 3px solid var(--focus-ring);
   outline-offset: 3px;
 }
 
@@ -41,6 +144,7 @@ summary:focus-visible {
 
 .app {
   max-width: 1440px;
+
   margin: auto;
   padding: 24px;
 }
@@ -51,12 +155,19 @@ summary:focus-visible {
 
 .app-header h1 {
   margin: 0 0 6px;
-  font-size: clamp(22px, 2.4vw, 30px);
+
+  font-size: clamp(
+    22px,
+    2.4vw,
+    30px
+  );
 }
 
 .app-header p {
   margin: 0;
-  color: #64748b;
+
+  color: var(--text-muted);
+
   font-size: 14px;
 }
 
@@ -68,14 +179,17 @@ summary:focus-visible {
 .results-bar {
   display: flex;
   flex-wrap: wrap;
+
   gap: 8px 22px;
+
   margin-bottom: 16px;
+
   font-size: 14px;
   font-variant-numeric: tabular-nums;
 }
 
 .results-bar small {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 
@@ -85,26 +199,35 @@ summary:focus-visible {
 
 .workspace {
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
+
+  grid-template-columns:
+    250px
+    minmax(0, 1fr);
+
   grid-template-areas:
     "controls sphere"
     "controls field";
+
   gap: 14px;
+
   align-items: start;
 }
 
 .controls-view {
   grid-area: controls;
+
   min-width: 0;
 }
 
 .sphere-view {
   grid-area: sphere;
+
   min-width: 0;
 }
 
 .field-view {
   grid-area: field;
+
   min-width: 0;
 }
 
@@ -115,14 +238,18 @@ summary:focus-visible {
 
 .panel {
   min-width: 0;
+
   padding: 18px;
-  background: white;
-  border: 1px solid #e2e8f0;
+
+  background: var(--panel-bg);
+
+  border: 1px solid var(--border);
   border-radius: 12px;
 }
 
 .panel h2 {
   margin: 0 0 12px;
+
   font-size: 17px;
 }
 
@@ -133,31 +260,41 @@ summary:focus-visible {
 
 .control {
   min-width: 0;
+
   margin-top: 18px;
 }
 
 .control label {
   display: flex;
+
   justify-content: space-between;
+
   gap: 8px;
+
   margin-bottom: 5px;
+
   font-size: 14px;
   font-weight: 600;
 }
 
 .control output {
   font-weight: 400;
+
   white-space: nowrap;
+
   font-variant-numeric: tabular-nums;
 }
 
 select {
   max-width: 100%;
   min-height: 38px;
+
   padding: 8px;
-  background: white;
-  color: #0f172a;
-  border: 1px solid #cbd5e1;
+
+  background: var(--control-bg);
+  color: var(--text-primary);
+
+  border: 1px solid var(--border-control);
   border-radius: 6px;
 }
 
@@ -166,6 +303,21 @@ select {
   width: 100%;
 }
 
+input[type="checkbox"] {
+  accent-color: var(--field-color);
+}
+
+.range-limits {
+  display: flex;
+
+  justify-content: space-between;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+}
+
+
 /* ==========================================
    Physics Sliders
    ========================================== */
@@ -173,20 +325,24 @@ select {
 .physics-slider {
   width: 100%;
   height: 38px;
+
   margin: 0;
 
   appearance: none;
   -webkit-appearance: none;
 
   background: transparent;
+
   cursor: pointer;
 }
 
+
 /* Chrome / Safari / Edge */
+
 .physics-slider::-webkit-slider-runnable-track {
   height: 14px;
 
-  background: #e2e8f0;
+  background: var(--slider-track);
 
   border-radius: 999px;
 
@@ -203,13 +359,12 @@ select {
   appearance: none;
   -webkit-appearance: none;
 
-  background: #ffffff;
+  background: var(--slider-thumb);
 
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--slider-thumb-border);
   border-radius: 50%;
 
-  box-shadow:
-    0 2px 5px rgba(15, 23, 42, 0.20);
+  box-shadow: var(--slider-shadow);
 
   cursor: grab;
 
@@ -220,21 +375,21 @@ select {
 
 .physics-slider::-webkit-slider-thumb:hover {
   transform: scale(1.06);
-
-  box-shadow:
-    0 3px 8px rgba(15, 23, 42, 0.25);
 }
 
 .physics-slider::-webkit-slider-thumb:active {
   cursor: grabbing;
+
   transform: scale(1);
 }
 
+
 /* Firefox */
+
 .physics-slider::-moz-range-track {
   height: 14px;
 
-  background: #e2e8f0;
+  background: var(--slider-track);
 
   border-radius: 999px;
 
@@ -246,27 +401,14 @@ select {
   width: 28px;
   height: 28px;
 
-  background: #ffffff;
+  background: var(--slider-thumb);
 
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--slider-thumb-border);
   border-radius: 50%;
 
-  box-shadow:
-    0 2px 5px rgba(15, 23, 42, 0.20);
+  box-shadow: var(--slider-shadow);
 
   cursor: grab;
-}
-
-
-input[type="checkbox"] {
-  accent-color: #2563eb;
-}
-
-.range-limits {
-  display: flex;
-  justify-content: space-between;
-  color: #64748b;
-  font-size: 11px;
 }
 
 
@@ -276,32 +418,43 @@ input[type="checkbox"] {
 
 .diagram {
   display: block;
+
   width: 100%;
   height: 210px;
 }
 
 .view-controls {
   display: flex;
+
   justify-content: space-between;
   align-items: center;
+
   gap: 8px;
+
   margin-top: 6px;
-  color: #64748b;
+
+  color: var(--text-muted);
+
   font-size: 12px;
 }
 
 .subtle-button {
   min-height: 32px;
+
   padding: 6px 10px;
-  background: white;
-  color: #334155;
-  border: 1px solid #cbd5e1;
+
+  background: var(--control-bg);
+  color: var(--text-secondary);
+
+  border: 1px solid var(--border-control);
   border-radius: 6px;
 }
 
 .caption {
-  color: #64748b;
+  color: var(--text-muted);
+
   font-size: 12px;
+
   text-align: center;
 }
 
@@ -311,28 +464,40 @@ input[type="checkbox"] {
 
 .diagram-legend {
   display: flex;
+
   justify-content: center;
+
   flex-wrap: wrap;
+
   gap: 6px 14px;
+
   margin-top: 6px;
 }
 
 .legend-line {
   display: inline-block;
+
   width: 14px;
+
   margin-right: 4px;
-  border-top: 2px solid #e11d48;
+
+  border-top:
+    2px solid
+    var(--sphere-line);
+
   vertical-align: middle;
 }
 
 .legend-gaussian {
-  border-color: #2563eb;
+  border-color: var(--gaussian-color);
   border-top-style: dashed;
 }
 
 .view-notice {
   margin: 6px 0 0;
-  color: #92400e;
+
+  color: var(--warning-text);
+
   font-size: 12px;
   line-height: 1.4;
 }
@@ -344,22 +509,27 @@ input[type="checkbox"] {
 
 .plot {
   display: block;
+
   width: 100%;
   min-width: 0;
   height: 250px;
 }
 
 .plot text {
-  fill: #334155;
+  fill: var(--text-secondary);
+
   font-family: Arial, sans-serif;
   font-size: 12px;
 }
 
 .plot-controls {
   display: flex;
+
   align-items: center;
   flex-wrap: wrap;
+
   gap: 6px 10px;
+
   margin: 0 0 8px;
 }
 
@@ -369,26 +539,38 @@ input[type="checkbox"] {
 
 .plot-controls select {
   flex: 1;
+
   min-width: 0;
+
   font-size: 13px;
 }
 
 .axis-controls {
   display: flex;
+
   justify-content: space-between;
   align-items: center;
+
   flex-wrap: wrap;
+
   gap: 8px;
+
   margin-top: 6px;
-  color: #475569;
+
+  color: var(--text-secondary);
+
   font-size: 12px;
 }
 
 .axis-lock {
   display: flex;
+
   align-items: center;
+
   gap: 5px;
+
   min-height: 32px;
+
   cursor: pointer;
 }
 
@@ -412,20 +594,25 @@ input[type="checkbox"] {
 
 .notes-panel summary {
   cursor: pointer;
+
   font-size: 14px;
   font-weight: 600;
 }
 
 .physics-note {
   margin-top: 16px;
-  color: #475569;
+
+  color: var(--text-secondary);
+
   font-size: 14px;
   line-height: 1.6;
 }
 
 .physics-note h3 {
   margin: 0 0 10px;
-  color: #0f172a;
+
+  color: var(--text-primary);
+
   font-size: 16px;
 }
 
@@ -435,8 +622,11 @@ input[type="checkbox"] {
 
 .physics-equation {
   padding: 4px;
+
   overflow-x: auto;
-  color: #1d4ed8;
+
+  color: var(--equation-color);
+
   text-align: center;
 }
 
@@ -449,9 +639,11 @@ input[type="checkbox"] {
 @media (min-width: 760px) and (max-width: 1099px) {
   .charge-panel {
     display: grid;
+
     grid-template-columns:
       minmax(150px, 220px)
       minmax(0, 1fr);
+
     column-gap: 14px;
   }
 
@@ -517,16 +709,22 @@ input[type="checkbox"] {
 
   .results-bar {
     gap: 5px 16px;
+
     margin-bottom: 12px;
+
     font-size: 12px;
   }
 
   /* Show one figure at a time above the controls */
+
   .workspace {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns:
+      minmax(0, 1fr);
+
     grid-template-areas:
       "figure"
       "controls";
+
     gap: 10px;
   }
 
@@ -542,24 +740,31 @@ input[type="checkbox"] {
 
   .mobile-view-switch {
     display: flex;
+
     gap: 8px;
+
     margin-bottom: 10px;
   }
 
   .mobile-view-switch button {
     flex: 1;
+
     min-height: 40px;
+
     padding: 7px 12px;
-    background: white;
-    color: #334155;
-    border: 1px solid #cbd5e1;
+
+    background: var(--control-bg);
+    color: var(--text-secondary);
+
+    border: 1px solid var(--border-control);
     border-radius: 7px;
   }
 
   .mobile-view-switch button[aria-pressed="true"] {
-    background: #0f172a;
-    color: white;
-    border-color: #0f172a;
+    background: var(--active-button-bg);
+    color: var(--active-button-text);
+
+    border-color: var(--active-button-bg);
   }
 
   .panel {
@@ -568,6 +773,7 @@ input[type="checkbox"] {
 
   .panel h2 {
     margin-bottom: 8px;
+
     font-size: 15px;
   }
 
@@ -580,32 +786,41 @@ input[type="checkbox"] {
   }
 
   /* Keep the distribution selector compact on mobile */
+
   .distribution-control {
     display: flex;
+
     flex-wrap: wrap;
     align-items: center;
+
     gap: 6px 12px;
+
     margin-top: 0;
   }
 
   .distribution-control label {
     margin: 0;
+
     font-size: 12px;
     font-weight: 400;
   }
 
   .distribution-control select {
     flex: 1;
+
     width: auto;
     min-width: 180px;
   }
 
   /* Place both radius sliders side by side */
+
   .slider-controls {
     display: grid;
+
     grid-template-columns:
       minmax(0, 1fr)
       minmax(0, 1fr);
+
     gap: 14px;
   }
 
@@ -615,10 +830,12 @@ input[type="checkbox"] {
 
   .slider-controls label {
     flex-direction: column;
+
     gap: 3px;
   }
 
   /* Prevent mobile browsers from zooming into form controls */
+
   select,
   .plot-controls select {
     font-size: 16px;
@@ -649,6 +866,7 @@ input[type="checkbox"] {
   .physics-slider::-webkit-slider-thumb {
     width: 32px;
     height: 32px;
+
     margin-top: -9px;
   }
 
@@ -657,4 +875,3 @@ input[type="checkbox"] {
     height: 32px;
   }
 }
-

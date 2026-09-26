@@ -75,11 +75,11 @@ export default function ChargeVisualization({
               r={sphereRadius}
               fill={
                 distribution === "solid"
-                  ? "#fda4af"
+                  ? "var(--sphere-fill)"
                   : "none"
               }
               fillOpacity="0.55"
-              stroke="#e11d48"
+              stroke="var(--sphere-line)"
               strokeWidth={
                 distribution === "solid"
                   ? 2
@@ -93,7 +93,7 @@ export default function ChargeVisualization({
               cy={cy}
               r={gaussianRadius}
               fill="none"
-              stroke="#2563eb"
+              stroke="var(--gaussian-color)"
               strokeWidth="2"
               strokeDasharray="6 4"
             />
@@ -104,7 +104,7 @@ export default function ChargeVisualization({
               y1={cy}
               x2={cx + gaussianRadius}
               y2={cy}
-              stroke="#2563eb"
+              stroke="var(--gaussian-color)"
             />
 
             {/* Center and observation point */}
@@ -112,34 +112,16 @@ export default function ChargeVisualization({
               cx={cx}
               cy={cy}
               r="3"
-              fill="#0f172a"
+              fill="var(--text-primary)"
             />
 
             <circle
               cx={cx + gaussianRadius}
               cy={cy}
               r="4"
-              fill="#7c3aed"
+              fill="var(--probe-color)"
             />
 
-            {/* Radius labels */}
-            <text
-              x={cx + sphereRadius / 2}
-              y={cy - 9}
-              fontSize="12"
-              fill="#9f1239"
-            >
-              R
-            </text>
-
-            <text
-              x={cx + gaussianRadius / 2}
-              y={cy + 19}
-              fontSize="12"
-              fill="#1d4ed8"
-            >
-              r
-            </text>
           </g>
         </svg>
       </div>

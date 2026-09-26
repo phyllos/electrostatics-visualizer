@@ -9,7 +9,9 @@ import type { ChargeDistribution } from "../physics/sphere";
 type ControlPanelProps = {
   // Charge distribution
   distribution: ChargeDistribution;
-  onDistributionChange: (value: ChargeDistribution) => void;
+  onDistributionChange: (
+    value: ChargeDistribution,
+  ) => void;
 
   // Sphere radius (cm)
   radius: number;
@@ -17,7 +19,9 @@ type ControlPanelProps = {
 
   // Gaussian surface radius (cm)
   observationRadius: number;
-  onObservationRadiusChange: (value: number) => void;
+  onObservationRadiusChange: (
+    value: number,
+  ) => void;
 };
 
 // ==========================================
@@ -47,7 +51,8 @@ export default function ControlPanel({
           value={distribution}
           onChange={(event) =>
             onDistributionChange(
-              event.target.value as ChargeDistribution,
+              event.target
+                .value as ChargeDistribution,
             )
           }
         >
@@ -66,6 +71,7 @@ export default function ControlPanel({
         <div className="control">
           <label htmlFor="sphere-radius">
             <span>Sphere radius R</span>
+
             <output htmlFor="sphere-radius">
               {radius.toFixed(2)} cm
             </output>
@@ -96,6 +102,7 @@ export default function ControlPanel({
         <div className="control">
           <label htmlFor="gaussian-radius">
             <span>Gaussian radius r</span>
+
             <output htmlFor="gaussian-radius">
               {observationRadius.toFixed(2)} cm
             </output>
