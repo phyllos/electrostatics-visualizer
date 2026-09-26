@@ -6,15 +6,41 @@
 
 import { COULOMB_CONSTANT } from "./constants";
 
+import {
+  enclosedChargeRatio as radialEnclosedChargeRatio,
+  fieldRatio as radialFieldRatio,
+  type RadialDensityModel,
+} from "./radialDensity";
 
 // ==========================================
-// Charge Distribution Types
+// Spherical Distribution Types
 // ==========================================
 
-export type ChargeDistribution =
-  | "solid"
-  | "shell";
+export type SphericalDistribution =
+  | {
+      kind: "volume";
+      densityModel: RadialDensityModel;
+    }
+  | {
+      kind: "shell";
+    };
 
+// ==========================================
+// Input Validation
+// ==========================================
+
+function validateNormalizedRadius(
+  x: number,
+) {
+  if (
+    !Number.isFinite(x) ||
+    x < 0
+  ) {
+    throw new RangeError(
+      "r/R must be finite and nonnegative",
+    );
+  }
+}
 
 // ==========================================
 // Normalized Electric Field
@@ -22,30 +48,25 @@ export type ChargeDistribution =
 // ==========================================
 
 export function fieldRatio(
-  distribution: ChargeDistribution,
-  t: number
+  distribution: SphericalDistribution,
+  x: number,
 ): number {
+  validateNormalizedRadius(x);
 
-  if (!Number.isFinite(t) || t < 0) {
-    throw new RangeError("r/R must be finite and nonnegative");
+  // Volume charge distributions are handled by the radial-density physics module.
+  if (distribution.kind === "volume") {
+    return radialFieldRatio(
+      distribution.densityModel,
+      x,
+    );
   }
 
-  // Inside the charged sphere
-
-  if (t < 1) {
-
-    if (distribution === "solid") {
-      return t;
-    }
-
+  // Ideal spherical shell: E = 0 inside, and E ∝ 1/r^2 outside.
+  if (x < 1) {
     return 0;
-
   }
 
-  // Outside the charged sphere
-
-  return 1 / (t * t);
-
+  return 1 / (x * x);
 }
 
 
@@ -55,20 +76,20 @@ export function fieldRatio(
 // ==========================================
 
 export function enclosedChargeRatio(
-  distribution: ChargeDistribution,
-  t: number
+  distribution: SphericalDistribution,
+  x: number,
 ): number {
+  validateNormalizedRadius(x);
 
-  if (!Number.isFinite(t) || t < 0) {
-    throw new RangeError("r/R must be finite and nonnegative");
+  if (distribution.kind === "volume") {
+    return radialEnclosedChargeRatio(
+      distribution.densityModel,
+      x,
+    );
   }
 
-  if (distribution === "solid") {
-    return t < 1 ? t ** 3 : 1;
-  }
-
-  return t < 1 ? 0 : 1;
-
+  // An ideal shell contains no enclosed charge until the Gaussian surface reaches the shell.
+  return x < 1 ? 0 : 1;
 }
 
 
@@ -79,20 +100,21 @@ export function enclosedChargeRatio(
 
 export function surfaceFieldMagnitude(
   totalCharge: number,
-  radiusMeters: number
+  radiusMeters: number,
 ): number {
-
   if (
     !Number.isFinite(radiusMeters) ||
     radiusMeters <= 0
   ) {
-    throw new RangeError("Sphere radius must be positive");
+    throw new RangeError(
+      "Sphere radius must be positive",
+    );
   }
 
   return (
     COULOMB_CONSTANT *
     Math.abs(totalCharge) /
-    (radiusMeters ** 2)
+    radiusMeters ** 2
   );
-
 }
+

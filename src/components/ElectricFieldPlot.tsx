@@ -1,7 +1,7 @@
 // src/components/ElectricFieldPlot.tsx
 
 import { useId, useState } from "react";
-import type { ChargeDistribution } from "../physics/sphere";
+import type { SphericalDistribution } from "../physics/sphere";
 import { useElementWidth } from "../hooks/useElementWidth";
 
 export type PlotMode =
@@ -9,7 +9,7 @@ export type PlotMode =
   | "physical";
 
 type ElectricFieldPlotProps = {
-  distribution: ChargeDistribution;
+  distribution: SphericalDistribution;
 
   radius: number;
   observationRadius: number;
@@ -561,8 +561,8 @@ export default function ElectricFieldPlot({
             />
 
             {/* Inside field */}
-            {distribution ===
-            "solid" ? (
+            {distribution.kind ===
+            "volume" ? (
               <polyline
                 points={
                   insidePoints
@@ -597,7 +597,7 @@ export default function ElectricFieldPlot({
             )}
 
             {/* Shell outside endpoint */}
-            {distribution ===
+            {distribution.kind ===
               "shell" && (
               <circle
                 cx={toX(
@@ -635,7 +635,7 @@ export default function ElectricFieldPlot({
           )}
 
           {/* Shell inside endpoint */}
-          {distribution ===
+          {distribution.kind ===
             "shell" &&
             surfaceX <=
               axes.xMax && (

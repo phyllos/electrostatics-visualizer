@@ -1,11 +1,11 @@
 // src/components/ChargeVisualization.tsx
 
 import { useId, useState } from "react";
-import type { ChargeDistribution } from "../physics/sphere";
+import type { SphericalDistribution } from "../physics/sphere";
 import { useElementWidth } from "../hooks/useElementWidth";
 
 type ChargeVisualizationProps = {
-  distribution: ChargeDistribution;
+  distribution: SphericalDistribution;
   radius: number;
   observationRadius: number;
 };
@@ -74,14 +74,14 @@ export default function ChargeVisualization({
               cy={cy}
               r={sphereRadius}
               fill={
-                distribution === "solid"
+                distribution.kind === "volume"
                   ? "var(--sphere-fill)"
                   : "none"
               }
               fillOpacity="0.55"
               stroke="var(--sphere-line)"
               strokeWidth={
-                distribution === "solid"
+                distribution.kind === "volume"
                   ? 2
                   : 4
               }

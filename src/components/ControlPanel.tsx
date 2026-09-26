@@ -1,6 +1,6 @@
 // src/components/ControlPanel.tsx
 
-import type { ChargeDistribution } from "../physics/sphere";
+import type { SphericalDistribution } from "../physics/sphere";
 
 // ==========================================
 // Component Props
@@ -8,9 +8,9 @@ import type { ChargeDistribution } from "../physics/sphere";
 
 type ControlPanelProps = {
   // Charge distribution
-  distribution: ChargeDistribution;
+  distribution: SphericalDistribution;
   onDistributionChange: (
-    value: ChargeDistribution,
+    value: SphericalDistribution,
   ) => void;
 
   // Sphere radius (cm)
@@ -48,15 +48,27 @@ export default function ControlPanel({
 
         <select
           id="charge-distribution"
-          value={distribution}
-          onChange={(event) =>
-            onDistributionChange(
-              event.target
-                .value as ChargeDistribution,
-            )
+          value={
+            distribution.kind === "shell"
+              ? "shell"
+              : "uniform"
           }
+          onChange={(event) => {
+            if (event.target.value === "shell") {
+              onDistributionChange({
+                kind: "shell",
+              });
+
+              return;
+            }
+
+            onDistributionChange({
+              kind: "volume",
+              densityModel: "uniform",
+            });
+          }}
         >
-          <option value="solid">
+          <option value="uniform">
             Uniform Solid Sphere
           </option>
 

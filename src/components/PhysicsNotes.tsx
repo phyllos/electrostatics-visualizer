@@ -1,10 +1,10 @@
 // src/components/PhysicsNotes.tsx
 
 import { BlockMath, InlineMath } from "react-katex";
-import type { ChargeDistribution } from "../physics/sphere";
+import type { SphericalDistribution } from "../physics/sphere";
 
 type PhysicsNotesProps = {
-  distribution: ChargeDistribution;
+  distribution: SphericalDistribution;
   radius: number;
   surfaceField: number;
   plotMode: "normalized" | "physical";
@@ -34,7 +34,7 @@ export default function PhysicsNotes({
       </div>
 
       {/* Field behavior at the sphere surface */}
-      {distribution === "solid" ? (
+      {distribution.kind === "volume" ? (
         <p>
           For a uniformly charged solid sphere,{" "}
           <InlineMath math="E(R) = E_0" />.
