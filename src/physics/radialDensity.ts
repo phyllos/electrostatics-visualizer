@@ -69,6 +69,42 @@ function validateNormalizedRadius(
   }
 }
 
+function validateTotalCharge(
+  totalCharge: number,
+) {
+  if (!Number.isFinite(totalCharge)) {
+    throw new RangeError(
+      "Total charge must be finite",
+    );
+  }
+}
+
+function validateSphereRadius(
+  radiusMeters: number,
+) {
+  if (
+    !Number.isFinite(radiusMeters) ||
+    radiusMeters <= 0
+  ) {
+    throw new RangeError(
+      "Sphere radius must be positive",
+    );
+  }
+}
+
+function validateObservationRadius(
+  observationRadiusMeters: number,
+) {
+  if (
+    !Number.isFinite(observationRadiusMeters) ||
+    observationRadiusMeters < 0
+  ) {
+    throw new RangeError(
+      "Observation radius must be finite and nonnegative",
+    );
+  }
+}
+
 // ==========================================
 // Normalized Density
 // rho(r) / rho0
@@ -85,12 +121,18 @@ export function densityShape(
   return profiles[model].shape(x);
 }
 
-/*
+// ==========================================
+// Density Scale
+// rho0 in C / m^3
+// ==========================================
 export function densityScale(
   model: RadialDensityModel,
   totalCharge: number,
   radiusMeters: number,
-) {
+): number {
+  validateTotalCharge(totalCharge);
+  validateSphereRadius(radiusMeters);
+
   const profile = profiles[model];
 
   const normalization =
@@ -106,11 +148,40 @@ export function densityScale(
     )
   );
 }
-*/
 
-/*
-densityAt(model, totalCharge, radiusMeters, rMeters)
-*/
+
+// ==========================================
+// Physical Charge Density
+// rho(r) in C / m^3
+// ==========================================
+export function densityAt(
+  model: RadialDensityModel,
+  totalCharge: number,
+  radiusMeters: number,
+  observationRadiusMeters: number,
+): number {
+  validateTotalCharge(totalCharge);
+  validateSphereRadius(radiusMeters);
+  validateObservationRadius(
+    observationRadiusMeters,
+  );
+
+  const x =
+    observationRadiusMeters /
+    radiusMeters;
+
+  return (
+    densityScale(
+      model,
+      totalCharge,
+      radiusMeters,
+    ) *
+    densityShape(
+      model,
+      x,
+    )
+  );
+}
 
 // ==========================================
 // Normalized Enclosed Charge
@@ -137,9 +208,34 @@ export function enclosedChargeRatio(
   );
 }
 
-/*
-enclosedCharge(model, totalCharge, x)
-*/
+// ==========================================
+// Physical Enclosed Charge
+// Q_enc(r) in Coulombs
+// ==========================================
+export function enclosedCharge(
+  model: RadialDensityModel,
+  totalCharge: number,
+  radiusMeters: number,
+  observationRadiusMeters: number,
+): number {
+  validateTotalCharge(totalCharge);
+  validateSphereRadius(radiusMeters);
+  validateObservationRadius(
+    observationRadiusMeters,
+  );
+
+  const x =
+    observationRadiusMeters /
+    radiusMeters;
+
+  return (
+    totalCharge *
+    enclosedChargeRatio(
+      model,
+      x,
+    )
+  );
+}
 
 // ==========================================
 // Normalized Electric Field

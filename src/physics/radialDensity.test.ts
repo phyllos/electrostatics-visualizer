@@ -7,7 +7,10 @@ import {
 } from "vitest";
 
 import {
+  densityAt,
+  densityScale,
   densityShape,
+  enclosedCharge,
   enclosedChargeRatio,
   fieldRatio,
 } from "./radialDensity";
@@ -236,6 +239,333 @@ describe(
   },
 );
 
+// ==========================================
+// Physical Density Scale
+// ==========================================
+describe(
+  "Physical density scale",
+  () => {
+    const Q = 5e-9;
+    const R = 0.02;
+
+    it(
+      "normalizes uniform density to the total charge",
+      () => {
+        const expected =
+          (3 * Q) /
+          (
+            4 *
+            Math.PI *
+            R ** 3
+          );
+
+        expect(
+          densityScale(
+            "uniform",
+            Q,
+            R,
+          ),
+        ).toBeCloseTo(
+          expected,
+        );
+      },
+    );
+
+    it(
+      "normalizes linear density to the total charge",
+      () => {
+        const expected =
+          Q /
+          (
+            Math.PI *
+            R ** 3
+          );
+
+        expect(
+          densityScale(
+            "linear-increasing",
+            Q,
+            R,
+          ),
+        ).toBeCloseTo(
+          expected,
+        );
+      },
+    );
+
+    it(
+      "normalizes quadratic density to the total charge",
+      () => {
+        const expected =
+          (15 * Q) /
+          (
+            8 *
+            Math.PI *
+            R ** 3
+          );
+
+        expect(
+          densityScale(
+            "quadratic-decreasing",
+            Q,
+            R,
+          ),
+        ).toBeCloseTo(
+          expected,
+        );
+      },
+    );
+  },
+);
+
+// ==========================================
+// Physical Charge Density
+// ==========================================
+describe(
+  "Physical charge density",
+  () => {
+    const Q = 5e-9;
+    const R = 0.02;
+    const r = 0.01;
+
+    it(
+      "evaluates each density profile at r = R / 2",
+      () => {
+        expect(
+          densityAt(
+            "uniform",
+            Q,
+            R,
+            r,
+          ),
+        ).toBeCloseTo(
+          densityScale(
+            "uniform",
+            Q,
+            R,
+          ),
+        );
+
+        expect(
+          densityAt(
+            "linear-increasing",
+            Q,
+            R,
+            r,
+          ),
+        ).toBeCloseTo(
+          0.5 *
+          densityScale(
+            "linear-increasing",
+            Q,
+            R,
+          ),
+        );
+
+        expect(
+          densityAt(
+            "quadratic-decreasing",
+            Q,
+            R,
+            r,
+          ),
+        ).toBeCloseTo(
+          0.75 *
+          densityScale(
+            "quadratic-decreasing",
+            Q,
+            R,
+          ),
+        );
+      },
+    );
+
+    it(
+      "has zero volume charge density outside the sphere",
+      () => {
+        expect(
+          densityAt(
+            "uniform",
+            Q,
+            R,
+            2 * R,
+          ),
+        ).toBeCloseTo(0);
+
+        expect(
+          densityAt(
+            "linear-increasing",
+            Q,
+            R,
+            2 * R,
+          ),
+        ).toBeCloseTo(0);
+
+        expect(
+          densityAt(
+            "quadratic-decreasing",
+            Q,
+            R,
+            2 * R,
+          ),
+        ).toBeCloseTo(0);
+      },
+    );
+  },
+);
+describe(
+  "Charge sign",
+  () => {
+    it(
+      "preserves the sign of a negative total charge",
+      () => {
+        const Q = -5e-9;
+        const R = 0.02;
+
+        expect(
+          densityScale(
+            "uniform",
+            Q,
+            R,
+          ),
+        ).toBeLessThan(0);
+
+        expect(
+          densityAt(
+            "uniform",
+            Q,
+            R,
+            R / 2,
+          ),
+        ).toBeLessThan(0);
+
+        expect(
+          enclosedCharge(
+            "uniform",
+            Q,
+            R,
+            R / 2,
+          ),
+        ).toBeLessThan(0);
+      },
+    );
+  },
+);
+
+// ==========================================
+// Charge Sign
+// ==========================================
+describe(
+  "Charge sign",
+  () => {
+    it(
+      "preserves the sign of a negative total charge",
+      () => {
+        const Q = -5e-9;
+        const R = 0.02;
+
+        expect(
+          densityScale(
+            "uniform",
+            Q,
+            R,
+          ),
+        ).toBeLessThan(0);
+
+        expect(
+          densityAt(
+            "uniform",
+            Q,
+            R,
+            R / 2,
+          ),
+        ).toBeLessThan(0);
+
+        expect(
+          enclosedCharge(
+            "uniform",
+            Q,
+            R,
+            R / 2,
+          ),
+        ).toBeLessThan(0);
+      },
+    );
+  },
+);
+
+// ==========================================
+// Physical Enclosed Charge
+// ==========================================
+describe(
+  "Physical enclosed charge",
+  () => {
+    const Q = 5e-9;
+    const R = 0.02;
+    const r = R / 2;
+
+    it(
+      "returns the expected enclosed charge at r = R / 2",
+      () => {
+        expect(
+          enclosedCharge(
+            "uniform",
+            Q,
+            R,
+            r,
+          ),
+        ).toBeCloseTo(
+          Q * 0.5 ** 3,
+        );
+
+        expect(
+          enclosedCharge(
+            "linear-increasing",
+            Q,
+            R,
+            r,
+          ),
+        ).toBeCloseTo(
+          Q * 0.5 ** 4,
+        );
+
+        const expectedQuadratic =
+          Q *
+          (
+            (5 / 2) *
+              0.5 ** 3 -
+            (3 / 2) *
+              0.5 ** 5
+          );
+
+        expect(
+          enclosedCharge(
+            "quadratic-decreasing",
+            Q,
+            R,
+            r,
+          ),
+        ).toBeCloseTo(
+          expectedQuadratic,
+        );
+      },
+    );
+
+    it(
+      "returns the total charge outside the sphere",
+      () => {
+        expect(
+          enclosedCharge(
+            "linear-increasing",
+            Q,
+            R,
+            2 * R,
+          ),
+        ).toBeCloseTo(Q);
+      },
+    );
+  },
+);
 
 // ==========================================
 // Shared Boundary Behavior
@@ -443,6 +773,82 @@ describe(
             Number.NaN,
           ),
         ).toThrow(RangeError);
+      },
+    );
+  },
+);
+
+// ==========================================
+// Physical Input Validation
+// ==========================================
+describe(
+  "Physical input validation",
+  () => {
+    it(
+      "rejects a non-finite total charge",
+      () => {
+        expect(() =>
+          densityScale(
+            "uniform",
+            Number.NaN,
+            0.02,
+          ),
+        ).toThrow(
+          RangeError,
+        );
+      },
+    );
+
+    it(
+      "rejects a non-positive sphere radius",
+      () => {
+        expect(() =>
+          densityScale(
+            "uniform",
+            5e-9,
+            0,
+          ),
+        ).toThrow(
+          RangeError,
+        );
+
+        expect(() =>
+          enclosedCharge(
+            "uniform",
+            5e-9,
+            -0.02,
+            0.01,
+          ),
+        ).toThrow(
+          RangeError,
+        );
+      },
+    );
+
+    it(
+      "rejects a negative observation radius",
+      () => {
+        expect(() =>
+          densityAt(
+            "uniform",
+            5e-9,
+            0.02,
+            -0.01,
+          ),
+        ).toThrow(
+          RangeError,
+        );
+
+        expect(() =>
+          enclosedCharge(
+            "uniform",
+            5e-9,
+            0.02,
+            -0.01,
+          ),
+        ).toThrow(
+          RangeError,
+        );
       },
     );
   },
