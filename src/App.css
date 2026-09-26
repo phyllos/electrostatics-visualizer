@@ -1,165 +1,877 @@
+/* ==========================================
+   Theme
+   ========================================== */
+
+:root {
+  color-scheme: light dark;
+
+  /* Backgrounds */
+  --page-bg: #f8fafc;
+  --panel-bg: #ffffff;
+  --control-bg: #ffffff;
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+
+  /* Borders */
+  --border: #e2e8f0;
+  --border-control: #cbd5e1;
+
+  /* Plot */
+  --grid-line: #e2e8f0;
+  --axis-line: #64748b;
+  --surface-guide: #94a3b8;
+
+  /* Interactive UI */
+  --focus-ring: #93c5fd;
+
+  --active-button-bg: #0f172a;
+  --active-button-text: #ffffff;
+
+  /* Physics colors */
+  --sphere-fill: #fda4af;
+  --sphere-line: #e11d48;
+
+  --field-color: #2563eb;
+  --gaussian-color: #2563eb;
+
+  --probe-color: #7c3aed;
+  --equation-color: #1d4ed8;
+
+  /* Warning */
+  --warning-text: #92400e;
+
+  /* Slider */
+  --slider-track: #e2e8f0;
+  --slider-thumb: #ffffff;
+  --slider-thumb-border: #cbd5e1;
+
+  --slider-shadow:
+    0 2px 5px rgba(15, 23, 42, 0.20);
+}
+
+
+/* ==========================================
+   Dark Theme
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-bg: #0f141f;
+    --panel-bg: #18202e;
+    --control-bg: #202a3a;
+
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+
+    --border: #334155;
+    --border-control: #475569;
+
+    --grid-line: #334155;
+    --axis-line: #94a3b8;
+    --surface-guide: #64748b;
+
+    --focus-ring: #60a5fa;
+
+    --active-button-bg: #e2e8f0;
+    --active-button-text: #0f172a;
+
+    --sphere-fill: #fb7185;
+    --sphere-line: #fb7185;
+
+    --field-color: #60a5fa;
+    --gaussian-color: #60a5fa;
+
+    --probe-color: #c084fc;
+    --equation-color: #60a5fa;
+
+    --warning-text: #fbbf24;
+
+    --slider-track: #334155;
+    --slider-thumb: #f8fafc;
+    --slider-thumb-border: #64748b;
+
+    --slider-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.45);
+  }
+}
+
+
+/* ==========================================
+   Global Styles
+   ========================================== */
+
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  background: #f8fafc;
-  color: #0f172a;
+
+  background: var(--page-bg);
+  color: var(--text-primary);
+
   font-family: Arial, sans-serif;
 }
 
+button,
+input,
+select {
+  font: inherit;
+}
+
+button,
+select,
+input[type="range"] {
+  cursor: pointer;
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+summary:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+
+
+/* ==========================================
+   App Layout
+   ========================================== */
+
 .app {
-  max-width: 1200px;
+  max-width: 1440px;
+
   margin: auto;
-  padding: 40px 24px;
+  padding: 24px;
 }
 
-header {
-  margin-bottom: 40px;
+.app-header {
+  margin-bottom: 14px;
 }
 
-header h1 {
-  font-size: 36px;
-  margin-bottom: 10px;
+.app-header h1 {
+  margin: 0 0 6px;
+
+  font-size: clamp(
+    22px,
+    2.4vw,
+    30px
+  );
 }
 
-header p {
-  color: #64748b;
+.app-header p {
+  margin: 0;
+
+  color: var(--text-muted);
+
+  font-size: 14px;
 }
 
-.layout {
+
+/* ==========================================
+   Current Results
+   ========================================== */
+
+.results-bar {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px 22px;
+
+  margin-bottom: 16px;
+
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.results-bar small {
+  color: var(--text-muted);
+}
+
+
+/* ==========================================
+   Main Workspace
+   ========================================== */
+
+.workspace {
   display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 24px;
+
+  grid-template-columns:
+    250px
+    minmax(0, 1fr);
+
+  grid-template-areas:
+    "controls sphere"
+    "controls field";
+
+  gap: 14px;
+
+  align-items: start;
 }
+
+.controls-view {
+  grid-area: controls;
+
+  min-width: 0;
+}
+
+.sphere-view {
+  grid-area: sphere;
+
+  min-width: 0;
+}
+
+.field-view {
+  grid-area: field;
+
+  min-width: 0;
+}
+
+
+/* ==========================================
+   Panels
+   ========================================== */
 
 .panel {
-  background: white;
-  padding: 28px;
-  border-radius: 14px;
-  border: 1px solid #e2e8f0;
-  margin-bottom: 24px;
+  min-width: 0;
+
+  padding: 18px;
+
+  background: var(--panel-bg);
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
 .panel h2 {
-  margin-top: 0;
+  margin: 0 0 12px;
+
+  font-size: 17px;
 }
 
-label {
-  display: block;
-  margin-top: 24px;
-  margin-bottom: 10px;
+
+/* ==========================================
+   Controls
+   ========================================== */
+
+.control {
+  min-width: 0;
+
+  margin-top: 18px;
+}
+
+.control label {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 8px;
+
+  margin-bottom: 5px;
+
+  font-size: 14px;
   font-weight: 600;
 }
 
-select,
-input {
-  width: 100%;
+.control output {
+  font-weight: 400;
+
+  white-space: nowrap;
+
+  font-variant-numeric: tabular-nums;
 }
 
 select {
-  padding: 10px;
+  max-width: 100%;
+  min-height: 38px;
+
+  padding: 8px;
+
+  background: var(--control-bg);
+  color: var(--text-primary);
+
+  border: 1px solid var(--border-control);
   border-radius: 6px;
-  border: 1px solid #cbd5e1;
 }
 
-.results {
-  background: #f1f5f9;
-  padding: 16px;
-  margin-top: 30px;
-  border-radius: 8px;
+.control select,
+.physics-slider {
+  width: 100%;
 }
+
+input[type="checkbox"] {
+  accent-color: var(--field-color);
+}
+
+.range-limits {
+  display: flex;
+
+  justify-content: space-between;
+
+  color: var(--text-muted);
+
+  font-size: 11px;
+}
+
+
+/* ==========================================
+   Physics Sliders
+   ========================================== */
+
+.physics-slider {
+  width: 100%;
+  height: 38px;
+
+  margin: 0;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: transparent;
+
+  cursor: pointer;
+}
+
+
+/* Chrome / Safari / Edge */
+
+.physics-slider::-webkit-slider-runnable-track {
+  height: 14px;
+
+  background: var(--slider-track);
+
+  border-radius: 999px;
+
+  box-shadow:
+    inset 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.physics-slider::-webkit-slider-thumb {
+  width: 28px;
+  height: 28px;
+
+  margin-top: -7px;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: var(--slider-thumb);
+
+  border: 1px solid var(--slider-thumb-border);
+  border-radius: 50%;
+
+  box-shadow: var(--slider-shadow);
+
+  cursor: grab;
+
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+}
+
+.physics-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.06);
+}
+
+.physics-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+
+  transform: scale(1);
+}
+
+
+/* Firefox */
+
+.physics-slider::-moz-range-track {
+  height: 14px;
+
+  background: var(--slider-track);
+
+  border-radius: 999px;
+
+  box-shadow:
+    inset 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.physics-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+
+  background: var(--slider-thumb);
+
+  border: 1px solid var(--slider-thumb-border);
+  border-radius: 50%;
+
+  box-shadow: var(--slider-shadow);
+
+  cursor: grab;
+}
+
+
+/* ==========================================
+   Charge Visualization
+   ========================================== */
 
 .diagram {
   display: block;
+
   width: 100%;
-  max-width: 420px;
-  margin: auto;
+  height: 210px;
 }
 
-.plot {
-  display: block;
-  width: 100%;
-  max-width: 850px;
+.view-controls {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 6px;
+
+  color: var(--text-muted);
+
+  font-size: 12px;
+}
+
+.subtle-button {
+  min-height: 32px;
+
+  padding: 6px 10px;
+
+  background: var(--control-bg);
+  color: var(--text-secondary);
+
+  border: 1px solid var(--border-control);
+  border-radius: 6px;
 }
 
 .caption {
+  color: var(--text-muted);
+
+  font-size: 12px;
+
   text-align: center;
-  color: #64748b;
-}
-
-@media (max-width: 700px) {
-
-  .layout {
-    grid-template-columns: 1fr;
-  }
-
-  .app {
-    padding: 20px 12px;
-  }
-
 }
 
 .caption p {
   margin: 6px 0;
 }
 
-.caption-note {
-  margin-top: 14px !important;
-  font-size: 14px;
-  color: #64748b;
-  line-height: 1.5;
+.diagram-legend {
+  display: flex;
+
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 6px 14px;
+
+  margin-top: 6px;
 }
 
-.physics-note {
-  margin-top: 24px;
-  padding: 20px 24px;
+.legend-line {
+  display: inline-block;
 
-  background: #f8fafc;
+  width: 14px;
 
-  border-left: 4px solid #2563eb;
-  border-radius: 8px;
+  margin-right: 4px;
 
-  font-size: 15px;
-  line-height: 1.7;
+  border-top:
+    2px solid
+    var(--sphere-line);
+
+  vertical-align: middle;
 }
 
-.physics-note h3 {
-  margin-top: 0;
-  margin-bottom: 12px;
+.legend-gaussian {
+  border-color: var(--gaussian-color);
+  border-top-style: dashed;
 }
 
-.physics-note p {
-  color: #475569;
-  margin: 8px 0;
+.view-notice {
+  margin: 6px 0 0;
+
+  color: var(--warning-text);
+
+  font-size: 12px;
+  line-height: 1.4;
 }
 
-.physics-equation {
-  font-size: 20px;
 
-  text-align: center;
-  padding: 14px;
+/* ==========================================
+   Electric Field Plot
+   ========================================== */
 
-  color: #1d4ed8;
+.plot {
+  display: block;
 
-  overflow-x: auto;
+  width: 100%;
+  min-width: 0;
+  height: 250px;
+}
+
+.plot text {
+  fill: var(--text-secondary);
+
+  font-family: Arial, sans-serif;
+  font-size: 12px;
 }
 
 .plot-controls {
   display: flex;
-  align-items: center;
-  gap: 16px;
 
-  margin: 18px 0 24px;
+  align-items: center;
+  flex-wrap: wrap;
+
+  gap: 6px 10px;
+
+  margin: 0 0 8px;
 }
 
 .plot-controls label {
-  margin: 0;
-  white-space: nowrap;
+  font-size: 13px;
 }
 
 .plot-controls select {
-  width: auto;
-  min-width: 220px;
+  flex: 1;
+
+  min-width: 0;
+
+  font-size: 13px;
+}
+
+.axis-controls {
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 6px;
+
+  color: var(--text-secondary);
+
+  font-size: 12px;
+}
+
+.axis-lock {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  min-height: 32px;
+
+  cursor: pointer;
+}
+
+
+/* ==========================================
+   Mobile Figure Switch
+   ========================================== */
+
+.mobile-view-switch {
+  display: none;
+}
+
+
+/* ==========================================
+   Physics Notes
+   ========================================== */
+
+.notes-panel {
+  margin-top: 14px;
+}
+
+.notes-panel summary {
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.physics-note {
+  margin-top: 16px;
+
+  color: var(--text-secondary);
+
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.physics-note h3 {
+  margin: 0 0 10px;
+
+  color: var(--text-primary);
+
+  font-size: 16px;
+}
+
+.physics-note p {
+  margin: 8px 0;
+}
+
+.physics-equation {
+  padding: 4px;
+
+  overflow-x: auto;
+
+  color: var(--equation-color);
+
+  text-align: center;
+}
+
+
+/* ==========================================
+   Tablet Layout
+   760px – 1099px
+   ========================================== */
+
+@media (min-width: 760px) and (max-width: 1099px) {
+  .charge-panel {
+    display: grid;
+
+    grid-template-columns:
+      minmax(150px, 220px)
+      minmax(0, 1fr);
+
+    column-gap: 14px;
+  }
+
+  .charge-panel h2 {
+    grid-column: 1 / -1;
+  }
+
+  .charge-panel > div:first-of-type {
+    grid-column: 1;
+    grid-row: 2 / 5;
+  }
+
+  .charge-panel .diagram-legend,
+  .charge-panel .view-controls,
+  .charge-panel p {
+    grid-column: 2;
+  }
+}
+
+
+/* ==========================================
+   Desktop Layout
+   1100px and above
+   ========================================== */
+
+@media (min-width: 1100px) {
+  .workspace {
+    grid-template-columns:
+      240px
+      minmax(240px, 0.85fr)
+      minmax(360px, 1.3fr);
+
+    grid-template-areas:
+      "controls sphere field";
+
+    align-items: stretch;
+  }
+
+  .controls-view > .panel,
+  .sphere-view > .panel {
+    height: 100%;
+  }
+
+  .diagram {
+    height: 250px;
+  }
+}
+
+
+/* ==========================================
+   Mobile Layout
+   Below 760px
+   ========================================== */
+
+@media (max-width: 759px) {
+  .app {
+    padding: 14px 12px;
+  }
+
+  .app-header p {
+    display: none;
+  }
+
+  .results-bar {
+    gap: 5px 16px;
+
+    margin-bottom: 12px;
+
+    font-size: 12px;
+  }
+
+  /* Show one figure at a time above the controls */
+
+  .workspace {
+    grid-template-columns:
+      minmax(0, 1fr);
+
+    grid-template-areas:
+      "figure"
+      "controls";
+
+    gap: 10px;
+  }
+
+  .sphere-view,
+  .field-view {
+    grid-area: figure;
+  }
+
+  .workspace[data-mobile-view="field"] .sphere-view,
+  .workspace[data-mobile-view="sphere"] .field-view {
+    display: none;
+  }
+
+  .mobile-view-switch {
+    display: flex;
+
+    gap: 8px;
+
+    margin-bottom: 10px;
+  }
+
+  .mobile-view-switch button {
+    flex: 1;
+
+    min-height: 40px;
+
+    padding: 7px 12px;
+
+    background: var(--control-bg);
+    color: var(--text-secondary);
+
+    border: 1px solid var(--border-control);
+    border-radius: 7px;
+  }
+
+  .mobile-view-switch button[aria-pressed="true"] {
+    background: var(--active-button-bg);
+    color: var(--active-button-text);
+
+    border-color: var(--active-button-bg);
+  }
+
+  .panel {
+    padding: 12px;
+  }
+
+  .panel h2 {
+    margin-bottom: 8px;
+
+    font-size: 15px;
+  }
+
+  .control-panel h2 {
+    display: none;
+  }
+
+  .control {
+    margin-top: 10px;
+  }
+
+  /* Keep the distribution selector compact on mobile */
+
+  .distribution-control {
+    display: flex;
+
+    flex-wrap: wrap;
+    align-items: center;
+
+    gap: 6px 12px;
+
+    margin-top: 0;
+  }
+
+  .distribution-control label {
+    margin: 0;
+
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .distribution-control select {
+    flex: 1;
+
+    width: auto;
+    min-width: 180px;
+  }
+
+  /* Place both radius sliders side by side */
+
+  .slider-controls {
+    display: grid;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+
+    gap: 14px;
+  }
+
+  .control label {
+    font-size: 13px;
+  }
+
+  .slider-controls label {
+    flex-direction: column;
+
+    gap: 3px;
+  }
+
+  /* Prevent mobile browsers from zooming into form controls */
+
+  select,
+  .plot-controls select {
+    font-size: 16px;
+  }
+
+  .range-limits {
+    display: none;
+  }
+
+  .notes-panel {
+    margin-top: 10px;
+  }
+}
+
+
+/* ==========================================
+   Touch Devices
+   ========================================== */
+
+@media (pointer: coarse) {
+  button,
+  select,
+  input[type="range"],
+  .axis-lock {
+    min-height: 44px;
+  }
+
+  .physics-slider::-webkit-slider-thumb {
+    width: 32px;
+    height: 32px;
+
+    margin-top: -9px;
+  }
+
+  .physics-slider::-moz-range-thumb {
+    width: 32px;
+    height: 32px;
+  }
 }

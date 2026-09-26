@@ -1,173 +1,179 @@
 // src/components/ChargeVisualization.tsx
 
+import { useId, useState } from "react";
 import type { ChargeDistribution } from "../physics/sphere";
-
-
-// ==========================================
-// Component Props
-// ==========================================
+import { useElementWidth } from "../hooks/useElementWidth";
 
 type ChargeVisualizationProps = {
-
   distribution: ChargeDistribution;
-
   radius: number;
-
   observationRadius: number;
-
 };
 
-
-// ==========================================
-// Visualization Settings
-// ==========================================
-
-// 17.5 SVG units = 1 cm
-
-const VISUALIZATION_SCALE = 17.5;
-
-
-// ==========================================
-// Charge Visualization Component
-// ==========================================
-
 export default function ChargeVisualization({
-
   distribution,
   radius,
   observationRadius,
-
 }: ChargeVisualizationProps) {
+  const { ref, width } = useElementWidth(300);
+  const clipId = useId();
 
+  // Keep the displayed scale fixed while dragging.
+  // This makes changes in the physical radius visually meaningful.
+  const [halfSpan, setHalfSpan] = useState(3); // cm
 
-  // Convert physical radii to SVG coordinates
+  // Use a slightly shorter diagram on very narrow screens.
+  const height = width < 260 ? 180 : 230;
+  const cx = width / 2;
+  const cy = height / 2;
 
-  const sphereVisualRadius =
-    radius * VISUALIZATION_SCALE;
+  // Convert physical distances in cm to SVG screen coordinates.
+  const scale =
+    Math.max(
+      1,
+      Math.min(width - 32, height - 32),
+    ) /
+    (2 * halfSpan);
 
-  const gaussianVisualRadius =
-    observationRadius * VISUALIZATION_SCALE;
+  const sphereRadius = radius * scale;
+  const gaussianRadius =
+    observationRadius * scale;
 
+  // Warn when either surface extends beyond the current view.
+  const outside =
+    Math.max(radius, observationRadius) >
+    halfSpan;
 
   return (
-
-    <div className="panel">
-
+    <section className="panel charge-panel">
       <h2>Charge Distribution</h2>
 
+      {/* Responsive 2D cross-section of the charged sphere */}
+      <div ref={ref}>
+        <svg
+          viewBox={`0 0 ${width} ${height}`}
+          className="diagram"
+          style={{ height }}
+          role="img"
+          aria-label={`Sphere R ${radius} cm, Gaussian surface r ${observationRadius} cm`}
+        >
+          <defs>
+            <clipPath id={clipId}>
+              <rect
+                width={width}
+                height={height}
+              />
+            </clipPath>
+          </defs>
 
-      {/* Charge Distribution Diagram */}
+          {/* Keep all geometry inside the visible SVG area */}
+          <g clipPath={`url(#${clipId})`}>
+            {/* Charged sphere or spherical shell */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={sphereRadius}
+              fill={
+                distribution === "solid"
+                  ? "var(--sphere-fill)"
+                  : "none"
+              }
+              fillOpacity="0.55"
+              stroke="var(--sphere-line)"
+              strokeWidth={
+                distribution === "solid"
+                  ? 2
+                  : 4
+              }
+            />
 
-      <svg
-        viewBox="0 0 520 520"
-        className="diagram"
-        role="img"
-        aria-label="Charged sphere and Gaussian surface"
-      >
+            {/* Gaussian surface */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r={gaussianRadius}
+              fill="none"
+              stroke="var(--gaussian-color)"
+              strokeWidth="2"
+              strokeDasharray="6 4"
+            />
 
+            {/* Radius indicator from the center to the Gaussian surface */}
+            <line
+              x1={cx}
+              y1={cy}
+              x2={cx + gaussianRadius}
+              y2={cy}
+              stroke="var(--gaussian-color)"
+            />
 
-        {/* Charged Sphere */}
+            {/* Center and observation point */}
+            <circle
+              cx={cx}
+              cy={cy}
+              r="3"
+              fill="var(--text-primary)"
+            />
 
-        {distribution === "solid" ? (
+            <circle
+              cx={cx + gaussianRadius}
+              cy={cy}
+              r="4"
+              fill="var(--probe-color)"
+            />
 
-          <circle
-            cx="260"
-            cy="260"
-
-            r={sphereVisualRadius}
-
-            fill="#fda4af"
-            fillOpacity="0.55"
-
-            stroke="#e11d48"
-            strokeWidth="2"
-          />
-
-        ) : (
-
-          <circle
-            cx="260"
-            cy="260"
-
-            r={sphereVisualRadius}
-
-            fill="none"
-
-            stroke="#e11d48"
-            strokeWidth="5"
-          />
-
-        )}
-
-
-        {/* Gaussian Surface */}
-
-        <circle
-          cx="260"
-          cy="260"
-
-          r={gaussianVisualRadius}
-
-          fill="none"
-
-          stroke="#2563eb"
-          strokeWidth="2"
-          strokeDasharray="7 5"
-        />
-
-
-        {/* Center */}
-
-        <circle
-          cx="260"
-          cy="260"
-
-          r="4"
-
-          fill="#111827"
-        />
-
-      </svg>
-
-
-      {/* Diagram Explanation */}
-
-      <div className="caption">
-
-        <p>
-
-          <strong style={{ color: "#e11d48" }}>
-            Red:
-          </strong>{" "}
-
-          Charged sphere (R)
-
-        </p>
-
-
-        <p>
-
-          <strong style={{ color: "#2563eb" }}>
-            Blue dashed circle:
-          </strong>{" "}
-
-          Gaussian surface (r)
-
-        </p>
-
-
-        <p className="caption-note">
-
-          The Gaussian surface is an imaginary
-          closed surface used to calculate
-          electric flux.
-
-        </p>
-
+          </g>
+        </svg>
       </div>
 
-    </div>
+      {/* Compact diagram legend */}
+      <div className="caption diagram-legend">
+        <span>
+          <i className="legend-line" />
+          Sphere R
+        </span>
 
+        <span>
+          <i className="legend-line legend-gaussian" />
+          Gaussian r
+        </span>
+      </div>
+
+      {/* View controls do not change the physical parameters */}
+      <div className="view-controls">
+        <span>
+          View ±{halfSpan.toFixed(1)} cm
+        </span>
+
+        <button
+          className="subtle-button"
+          type="button"
+          onClick={() =>
+            setHalfSpan(
+              Math.max(
+                radius,
+                observationRadius,
+              ) * 1.25,
+            )
+          }
+        >
+          Fit view
+        </button>
+      </div>
+
+      {outside && (
+        <p
+          className="view-notice"
+          role="status"
+        >
+          A surface is outside the view. Select
+          Fit view.
+        </p>
+      )}
+
+      <p className="caption">
+        2D cross-section of 3D spheres
+      </p>
+    </section>
   );
-
 }

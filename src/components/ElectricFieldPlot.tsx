@@ -1,11 +1,8 @@
 // src/components/ElectricFieldPlot.tsx
 
+import { useId, useState } from "react";
 import type { ChargeDistribution } from "../physics/sphere";
-
-
-// ==========================================
-// Types
-// ==========================================
+import { useElementWidth } from "../hooks/useElementWidth";
 
 export type PlotMode =
   | "normalized"
@@ -24,414 +21,705 @@ type ElectricFieldPlotProps = {
 
   plotMode: PlotMode;
 
-  onPlotModeChange: (mode: PlotMode) => void;
+  onPlotModeChange: (
+    mode: PlotMode,
+  ) => void;
 };
 
+type Axes = {
+  xMax: number;
+  yMax: number;
+};
 
-// ==========================================
-// SVG Plot Settings
-// ==========================================
+const SAMPLES = 401;
 
-const PLOT_LEFT = 40;
-const PLOT_RIGHT = 470;
+function niceCeiling(
+  value: number,
+) {
+  if (
+    !Number.isFinite(value) ||
+    value <= 0
+  ) {
+    return 1;
+  }
 
-const PLOT_BOTTOM = 220;
-const PLOT_HEIGHT = 165;
+  const step =
+    10 **
+      Math.floor(
+        Math.log10(value),
+      ) /
+    2;
 
-const PLOT_WIDTH = PLOT_RIGHT - PLOT_LEFT;
+  return (
+    Math.ceil(value / step) *
+    step
+  );
+}
 
-const NUM_POINTS = 401;
-
-
-// ==========================================
-// Electric Field Plot Component
-// ==========================================
+function tickLabel(
+  value: number,
+) {
+  return Number(
+    value.toFixed(2),
+  ).toString();
+}
 
 export default function ElectricFieldPlot({
-
   distribution,
-
   radius,
   observationRadius,
-
   surfaceField,
   electricField,
-
   fieldRatio,
-
   plotMode,
   onPlotModeChange,
-
 }: ElectricFieldPlotProps) {
+  const { ref, width } =
+    useElementWidth();
 
+  const clipId = useId();
 
-  // ========================================
-  // Normalized Observation Radius
-  // ========================================
+  const [
+    lockedAxes,
+    setLockedAxes,
+  ] =
+    useState<Axes | null>(
+      null,
+    );
 
-  const x = observationRadius / radius;
+  // Convert between normalized coordinates
+  // (r/R, E/E₀) and physical coordinates
+  // (cm, kN/C).
 
+  const normalized =
+    plotMode === "normalized";
 
-  // ========================================
-  // Plot Axis Ranges
-  // ========================================
-
-  const plotXMax =
-    plotMode === "normalized"
-      ? Math.max(2.4, x * 1.1)
-      : 10;
-
-  const plotYMax =
-    plotMode === "normalized"
-      ? 1
-      : surfaceField;
-
-
-  // ========================================
-  // Coordinate Conversion
-  // ========================================
-
-  // Convert plot horizontal coordinate to r/R
-
-  const getRatio = (position: number) => {
-
-    if (plotMode === "normalized") {
-      return position;
-    }
-
-    return position / radius;
-
-  };
-
-
-  // Convert physical/normalized x to SVG x
-
-  const toSvgX = (position: number) =>
-    PLOT_LEFT +
-    (position / plotXMax) * PLOT_WIDTH;
-
-
-  // Convert physical/normalized y to SVG y
-
-  const toSvgY = (value: number) =>
-    PLOT_BOTTOM -
-    (value / plotYMax) * PLOT_HEIGHT;
-
-
-  // ========================================
-  // Electric Field Calculation for Plot
-  // ========================================
-
-  const getPlotField = (position: number) => {
-
-    const ratio = getRatio(position);
-
-    const normalizedField = fieldRatio(ratio);
-
-    return plotMode === "normalized"
-      ? normalizedField
-      : surfaceField * normalizedField;
-
-  };
-
-
-  // ========================================
-  // General Electric Field Curve
-  // ========================================
-
-  const plotPoints = Array.from(
-    { length: NUM_POINTS },
-    (_, i) => {
-
-      const position =
-        (i / (NUM_POINTS - 1)) * plotXMax;
-
-      const fieldValue =
-        getPlotField(position);
-
-      const px = toSvgX(position);
-
-      const py = toSvgY(fieldValue);
-
-      return `${px},${py}`;
-
-    }
-  ).join(" ");
-
-
-  // ========================================
-  // Observation Point
-  // ========================================
-
-  const markerPosition =
-    plotMode === "normalized"
-      ? x
+  const observationX =
+    normalized
+      ? observationRadius /
+        radius
       : observationRadius;
 
-  const markerValue =
-    plotMode === "normalized"
-      ? fieldRatio(x)
-      : electricField;
-
-  const markerX = toSvgX(markerPosition);
-
-  const markerY = toSvgY(markerValue);
-
-
-  // ========================================
-  // Charged Sphere Boundary
-  // ========================================
-
-  const surfacePosition =
-    plotMode === "normalized"
+  const surfaceX =
+    normalized
       ? 1
       : radius;
 
-  const surfaceX =
-    toSvgX(surfacePosition);
+  const fieldAt = (
+    position: number,
+  ) => {
+    const ratio =
+      normalized
+        ? position
+        : position / radius;
 
+    return (
+      fieldRatio(ratio) *
+      (
+        normalized
+          ? 1
+          : surfaceField /
+            1000
+      )
+    );
+  };
 
-  // ========================================
-  // Spherical Shell: Outside Field Curve
-  // ========================================
+  const markerValue =
+    normalized
+      ? fieldRatio(
+          observationX,
+        )
+      : electricField /
+        1000;
 
-  const shellOutsidePoints = Array.from(
-    { length: NUM_POINTS },
-    (_, i) => {
+  const surfaceValue =
+    normalized
+      ? fieldRatio(1)
+      : (
+          surfaceField *
+          fieldRatio(1)
+        ) /
+        1000;
 
-      const position =
-        surfacePosition +
-        (i / (NUM_POINTS - 1)) *
-          (plotXMax - surfacePosition);
+  const autoXMax =
+    normalized
+      ? Math.max(
+          3,
+          Math.ceil(
+            observationX *
+              1.05,
+          ),
+        )
+      : 10;
 
-      const fieldValue =
-        getPlotField(position);
+  // Sample the full curve so the automatic
+  // Y axis can fit the current field.
+  //
+  // E₀ is only a reference scale.
+  // Future nonuniform cases may exceed E/E₀ = 1.
 
-      const px = toSvgX(position);
+  const sampledPeak =
+    Math.max(
+      surfaceValue,
+      markerValue,
 
-      const py = toSvgY(fieldValue);
+      ...Array.from(
+        {
+          length: SAMPLES,
+        },
 
-      return `${px},${py}`;
+        (_, i) =>
+          fieldAt(
+            (
+              i *
+              autoXMax
+            ) /
+              (
+                SAMPLES -
+                1
+              ),
+          ),
+      ),
+    );
 
-    }
-  ).join(" ");
+  const autoAxes = {
+    xMax: autoXMax,
 
+    yMax:
+      niceCeiling(
+        sampledPeak *
+          1.1,
+      ),
+  };
 
-  // ========================================
-  // Render
-  // ========================================
+  // Use automatic limits unless the user
+  // explicitly locks the current axes.
+
+  const axes =
+    lockedAxes ??
+    autoAxes;
+
+  // Keep the SVG compact on narrow screens
+  // while preserving readable text.
+
+  const height =
+    width < 350
+      ? 210
+      : 220;
+
+  const left = 62;
+
+  const right =
+    width - 14;
+
+  const top = 28;
+
+  const bottom =
+    height - 44;
+
+  // Convert plot-space values into
+  // SVG pixel coordinates.
+
+  const toX = (
+    position: number,
+  ) =>
+    left +
+    (
+      position /
+      axes.xMax
+    ) *
+      (
+        right -
+        left
+      );
+
+  const toY = (
+    value: number,
+  ) =>
+    bottom -
+    (
+      value /
+      axes.yMax
+    ) *
+      (
+        bottom -
+        top
+      );
+
+  // Generate a sampled polyline
+  // for a selected interval.
+
+  const makePoints = (
+    start: number,
+    end: number,
+  ) =>
+    Array.from(
+      {
+        length: SAMPLES,
+      },
+
+      (_, i) => {
+        const position =
+          start +
+          (
+            i /
+            (
+              SAMPLES -
+              1
+            )
+          ) *
+            (
+              end -
+              start
+            );
+
+        return `${toX(
+          position,
+        )},${toY(
+          fieldAt(
+            position,
+          ),
+        )}`;
+      },
+    ).join(" ");
+
+  // Split the curve at r = R so the surface
+  // is sampled exactly.
+  //
+  // This preserves the sharp corner of the
+  // solid-sphere field.
+
+  const insidePoints =
+    makePoints(
+      0,
+
+      Math.min(
+        surfaceX,
+        axes.xMax,
+      ),
+    );
+
+  const outsidePoints =
+    surfaceX <=
+    axes.xMax
+      ? makePoints(
+          surfaceX,
+          axes.xMax,
+        )
+      : "";
+
+  const outOfRange =
+    sampledPeak >
+      axes.yMax ||
+    observationX >
+      axes.xMax ||
+    surfaceX >
+      axes.xMax;
+
+  const xTickCount =
+    width < 360
+      ? 3
+      : 4;
 
   return (
-
     <>
-
-      {/* Graph Mode Selection */}
-
+      {/* Unit / coordinate-system selector */}
       <div className="plot-controls">
-
         <label htmlFor="plot-mode">
-          Graph Mode
+          Units
         </label>
 
         <select
           id="plot-mode"
-
           value={plotMode}
+          onChange={(event) => {
+            // The old limits have different units,
+            // so changing units releases them.
 
-          onChange={(e) =>
+            setLockedAxes(
+              null,
+            );
+
             onPlotModeChange(
-              e.target.value as PlotMode
-            )
-          }
+              event.target
+                .value as PlotMode,
+            );
+          }}
         >
+          <option value="physical">
+            Physical · E vs. r
+          </option>
 
           <option value="normalized">
-            Normalized (E/E₀ vs. r/R)
+            Normalized · E/E₀ vs. r/R
           </option>
-
-          <option value="physical">
-            Physical (E vs. r)
-          </option>
-
         </select>
-
       </div>
 
+      {/* Responsive SVG plot */}
+      <div ref={ref}>
+        <svg
+          className="plot"
+          style={{
+            height,
+          }}
+          viewBox={`0 0 ${width} ${height}`}
+          role="img"
+          aria-label={
+            normalized
+              ? "E over E0 versus r over R"
+              : "Field magnitude in kN/C versus r in cm"
+          }
+        >
+          <defs>
+            <clipPath
+              id={clipId}
+            >
+              <rect
+                x={left}
+                y={top}
+                width={Math.max(
+                  1,
+                  right -
+                    left,
+                )}
+                height={
+                  bottom -
+                  top
+                }
+              />
+            </clipPath>
+          </defs>
 
-      {/* Electric Field Graph */}
+          {/* Horizontal grid lines and Y-axis tick labels */}
+          {Array.from(
+            {
+              length: 5,
+            },
 
-      <svg
-        viewBox="0 0 500 270"
-        className="plot"
-        role="img"
-        aria-label="Electric field versus radius"
-      >
+            (_, i) => {
+              const value =
+                (
+                  i *
+                  axes.yMax
+                ) /
+                4;
 
-        {/* X Axis */}
+              return (
+                <g key={i}>
+                  <line
+                    x1={left}
+                    y1={toY(
+                      value,
+                    )}
+                    x2={right}
+                    y2={toY(
+                      value,
+                    )}
+                    stroke="var(--grid-line)"
+                  />
 
-        <line
-          x1={PLOT_LEFT}
-          y1={PLOT_BOTTOM}
-          x2="480"
-          y2={PLOT_BOTTOM}
-          stroke="black"
-        />
+                  <text
+                    x={
+                      left -
+                      8
+                    }
+                    y={
+                      toY(
+                        value,
+                      ) +
+                      4
+                    }
+                    textAnchor="end"
+                  >
+                    {tickLabel(
+                      value,
+                    )}
+                  </text>
+                </g>
+              );
+            },
+          )}
 
+          {/* X-axis ticks adapt to the available screen width */}
+          {Array.from(
+            {
+              length:
+                xTickCount +
+                1,
+            },
 
-        {/* Y Axis */}
+            (_, i) => {
+              const position =
+                (
+                  i *
+                  axes.xMax
+                ) /
+                xTickCount;
 
-        <line
-          x1={PLOT_LEFT}
-          y1={PLOT_BOTTOM}
-          x2={PLOT_LEFT}
-          y2="30"
-          stroke="black"
-        />
+              return (
+                <g key={i}>
+                  <line
+                    x1={toX(
+                      position,
+                    )}
+                    y1={bottom}
+                    x2={toX(
+                      position,
+                    )}
+                    y2={
+                      bottom +
+                      4
+                    }
+                    stroke="var(--surface-guide)"
+                  />
 
+                  <text
+                    x={toX(
+                      position,
+                    )}
+                    y={
+                      bottom +
+                      19
+                    }
+                    textAnchor={
+                      i === 0
+                        ? "start"
+                        : i ===
+                            xTickCount
+                          ? "end"
+                          : "middle"
+                    }
+                  >
+                    {tickLabel(
+                      position,
+                    )}
+                  </text>
+                </g>
+              );
+            },
+          )}
 
-        {/* Sphere Boundary */}
-
-        <line
-          x1={surfaceX}
-          y1="30"
-          x2={surfaceX}
-          y2={PLOT_BOTTOM}
-          stroke="#aaa"
-          strokeDasharray="5 5"
-        />
-
-
-        {/* Electric Field Curves */}
-
-        {distribution === "solid" ? (
-
-          // Uniformly Charged Solid Sphere
-
-          <polyline
-            points={plotPoints}
-            fill="none"
-            stroke="#2563eb"
-            strokeWidth="3"
+          {/* Y axis */}
+          <line
+            x1={left}
+            y1={top}
+            x2={left}
+            y2={bottom}
+            stroke="var(--axis-line)"
           />
 
-        ) : (
+          {/* X axis */}
+          <line
+            x1={left}
+            y1={bottom}
+            x2={right}
+            y2={bottom}
+            stroke="var(--axis-line)"
+          />
 
-          // Uniformly Charged Spherical Shell
+          {/* Y axis title */}
+          <text
+            x={left}
+            y="15"
+          >
+            {normalized
+              ? "E / E₀"
+              : "|E| (kN/C)"}
+          </text>
 
-          <>
+          {/* X axis title */}
+          <text
+            x={right}
+            y={
+              height -
+              3
+            }
+            textAnchor="end"
+          >
+            {normalized
+              ? "r / R"
+              : "r (cm)"}
+          </text>
 
-            {/* Inside: E = 0 */}
-
+          {/* Clip curves and markers to the drawable plot area */}
+          <g
+            clipPath={`url(#${clipId})`}
+          >
+            {/* Sphere surface */}
             <line
-              x1={PLOT_LEFT}
-              y1={PLOT_BOTTOM}
-              x2={surfaceX}
-              y2={PLOT_BOTTOM}
-              stroke="#2563eb"
-              strokeWidth="3"
+              x1={toX(
+                surfaceX,
+              )}
+              y1={top}
+              x2={toX(
+                surfaceX,
+              )}
+              y2={bottom}
+              stroke="var(--surface-guide)"
+              strokeDasharray="4 4"
             />
 
+            {/* Inside field */}
+            {distribution ===
+            "solid" ? (
+              <polyline
+                points={
+                  insidePoints
+                }
+                fill="none"
+                stroke="var(--field-color)"
+                strokeWidth="2.5"
+              />
+            ) : (
+              <line
+                x1={left}
+                y1={bottom}
+                x2={toX(
+                  surfaceX,
+                )}
+                y2={bottom}
+                stroke="var(--field-color)"
+                strokeWidth="4"
+              />
+            )}
 
-            {/* Outside: E = kQ/r² */}
+            {/* Outside field */}
+            {outsidePoints && (
+              <polyline
+                points={
+                  outsidePoints
+                }
+                fill="none"
+                stroke="var(--field-color)"
+                strokeWidth="2.5"
+              />
+            )}
 
-            <polyline
-              points={shellOutsidePoints}
-              fill="none"
-              stroke="#2563eb"
-              strokeWidth="3"
-            />
+            {/* Shell outside endpoint */}
+            {distribution ===
+              "shell" && (
+              <circle
+                cx={toX(
+                  surfaceX,
+                )}
+                cy={toY(
+                  surfaceValue,
+                )}
+                r="4"
+                fill="var(--field-color)"
+              />
+            )}
+          </g>
 
+          {/* Sphere radius label */}
+          {surfaceX <=
+            axes.xMax && (
+            <text
+              x={Math.min(
+                toX(
+                  surfaceX,
+                ) +
+                  5,
 
-            {/* Inner Limit: E(R-) = 0 */}
+                right -
+                  14,
+              )}
+              y={
+                top +
+                14
+              }
+            >
+              R
+            </text>
+          )}
 
-            <circle
-              cx={surfaceX}
-              cy={PLOT_BOTTOM}
-              r="5"
-              fill="white"
-              stroke="#2563eb"
-              strokeWidth="2"
-            />
+          {/* Shell inside endpoint */}
+          {distribution ===
+            "shell" &&
+            surfaceX <=
+              axes.xMax && (
+              <circle
+                cx={toX(
+                  surfaceX,
+                )}
+                cy={bottom}
+                r="4"
+                fill="var(--panel-bg)"
+                stroke="var(--field-color)"
+                strokeWidth="2"
+              />
+            )}
 
+          {/* Observation / probe point */}
+          {observationX <=
+            axes.xMax &&
+            markerValue <=
+              axes.yMax && (
+              <circle
+                cx={toX(
+                  observationX,
+                )}
+                cy={toY(
+                  markerValue,
+                )}
+                r="5"
+                fill="var(--probe-color)"
+              />
+            )}
+        </svg>
+      </div>
 
-            {/* Outer Limit: E(R+) = E0 */}
+      {/* Locking the axes makes slider-driven changes easier to compare. */}
+      <div className="axis-controls">
+        <label className="axis-lock">
+          <input
+            type="checkbox"
+            checked={
+              lockedAxes !==
+              null
+            }
+            onChange={(
+              event,
+            ) =>
+              setLockedAxes(
+                event.target
+                  .checked
+                  ? {
+                      ...axes,
+                    }
+                  : null,
+              )
+            }
+          />
 
-            <circle
-              cx={surfaceX}
-              cy={toSvgY(plotYMax)}
-              r="5"
-              fill="#2563eb"
-              stroke="#2563eb"
-              strokeWidth="2"
-            />
+          Lock axes
+        </label>
 
-          </>
+        <span>
+          {lockedAxes
+            ? "Locked"
+            : "Auto"}{" "}
+          · Y: 0–
+          {tickLabel(
+            axes.yMax,
+          )}{" "}
+          {normalized
+            ? "E/E₀"
+            : "kN/C"}
+        </span>
+      </div>
 
+      {lockedAxes &&
+        outOfRange && (
+          <p
+            className="view-notice"
+            role="status"
+          >
+            Part of the curve or probe is outside
+            the axes. Unlock to fit.
+          </p>
         )}
-
-
-        {/* Observation Point */}
-
-        <circle
-          cx={markerX}
-          cy={markerY}
-          r="6"
-          fill="#e11d48"
-        />
-
-
-        {/* Y Axis Label */}
-
-        <text x="8" y="25">
-
-          {plotMode === "normalized"
-            ? "E / E₀"
-            : "E (N/C)"}
-
-        </text>
-
-
-        {/* X Axis Label */}
-
-        <text x="435" y="250">
-
-          {plotMode === "normalized"
-            ? "r / R"
-            : "r (cm)"}
-
-        </text>
-
-
-        {/* Sphere Boundary Label */}
-
-        <text
-          x={surfaceX}
-          y="245"
-          textAnchor="middle"
-        >
-          R
-        </text>
-
-
-        {/* Y Axis Scale */}
-
-        <text
-          x="34"
-          y="59"
-          textAnchor="end"
-          fontSize="12"
-        >
-
-          {plotMode === "normalized"
-            ? "1"
-            : surfaceField.toExponential(2)}
-
-        </text>
-
-      </svg>
-
     </>
-
   );
-
 }

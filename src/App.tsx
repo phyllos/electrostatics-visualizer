@@ -8,18 +8,15 @@ import {
 } from "./physics/sphere";
 
 import ControlPanel from "./components/ControlPanel";
-
 import ChargeVisualization from "./components/ChargeVisualization";
-
 import PhysicsNotes from "./components/PhysicsNotes";
-
 import ElectricFieldPlot, {
   type PlotMode,
 } from "./components/ElectricFieldPlot";
 
 import "./App.css";
 
-const Q = 5e-9; // Coulombs
+const TOTAL_CHARGE = 5e-9; // Coulombs
 
 function App() {
   const [distribution, setDistribution] =
@@ -34,93 +31,147 @@ function App() {
 
   // Graph display mode
   const [plotMode, setPlotMode] =
-    useState<PlotMode>("normalized");
+    useState<PlotMode>("physical");
 
-  // Dimensionless observation radius
+  // Mobile figure toggle
+  const [mobileView, setMobileView] =
+    useState<"field" | "sphere">("field");
+
+  // Dimensionless observation radius: x = r / R
   const x = observationRadius / radius;
 
-  // x = r / R
+  // Dimensionless electric field profile
   const fieldRatio = (t: number) =>
     calculateFieldRatio(distribution, t);
 
-  const enclosedChargeRatio = (t: number) =>
-    calculateEnclosedChargeRatio(distribution, t);
+  // Reference electric field at the sphere surface
+  const E0 = surfaceFieldMagnitude(
+    TOTAL_CHARGE,
+    radius / 100,
+  );
 
-  // Convert cm to meters
-  const R = radius / 100;
+  // Electric field at the current observation radius
+  const electricField =
+    E0 * fieldRatio(x);
 
-  // Electric field at the surface
-  const E0 = surfaceFieldMagnitude(Q, R);
-
-  const electricField = E0 * fieldRatio(x);
-
-  const enclosedCharge = Q * enclosedChargeRatio(x);
-
-
+  // Charge enclosed by the current Gaussian surface
+  const enclosedCharge =
+    TOTAL_CHARGE *
+    calculateEnclosedChargeRatio(distribution, x);
 
   return (
     <main className="app">
-
-      <header>
+      <header className="app-header">
         <h1>Electrostatics Visualizer</h1>
 
         <p>
-          Explore electric fields and charge distributions
-          interactively.
+          Explore spherical charge distributions and Gauss&apos;s law.
         </p>
       </header>
 
-      <section className="layout">
+      {/* Current numerical values */}
+      <div
+        className="results-bar"
+        aria-label="Current values"
+      >
+        <span>
+          <strong>Q</strong> = +5.00 nC{" "}
+          <small>· fixed</small>
+        </span>
 
-        <ControlPanel
+        <span>
+          <strong>r/R</strong> = {x.toFixed(3)}
+        </span>
 
-          distribution={distribution}
+        <span>
+          <strong>|E|</strong> ={" "}
+          {(electricField / 1000).toFixed(2)} kN/C
+        </span>
 
-          onDistributionChange={setDistribution}
+        <span>
+          <strong>Q enclosed</strong> ={" "}
+          {(enclosedCharge * 1e9).toFixed(3)} nC
+        </span>
+      </div>
 
-          radius={radius}
+      {/* Mobile-only switch between the graph and sphere views */}
+      <div
+        className="mobile-view-switch"
+        role="group"
+        aria-label="Visible figure"
+      >
+        <button
+          type="button"
+          aria-pressed={mobileView === "field"}
+          aria-controls="field-view"
+          onClick={() => setMobileView("field")}
+        >
+          E(r) graph
+        </button>
 
-          onRadiusChange={setRadius}
+        <button
+          type="button"
+          aria-pressed={mobileView === "sphere"}
+          aria-controls="sphere-view"
+          onClick={() => setMobileView("sphere")}
+        >
+          Sphere
+        </button>
+      </div>
 
-          observationRadius={observationRadius}
+      {/* Main responsive workspace */}
+      <section
+        className="workspace"
+        data-mobile-view={mobileView}
+      >
+        <div className="controls-view">
+          <ControlPanel
+            distribution={distribution}
+            onDistributionChange={setDistribution}
+            radius={radius}
+            onRadiusChange={setRadius}
+            observationRadius={observationRadius}
+            onObservationRadiusChange={
+              setObservationRadius
+            }
+          />
+        </div>
 
-          onObservationRadiusChange={setObservationRadius}
+        <div
+          className="sphere-view"
+          id="sphere-view"
+        >
+          <ChargeVisualization
+            distribution={distribution}
+            radius={radius}
+            observationRadius={observationRadius}
+          />
+        </div>
 
-          radiusRatio={x}
+        <section
+          className="panel field-view"
+          id="field-view"
+        >
+          <h2>Electric Field vs. Radius</h2>
 
-          electricField={electricField}
-
-          enclosedCharge={enclosedCharge}
-
-        />
-
-
-        <ChargeVisualization
-
-          distribution={distribution}
-
-          radius={radius}
-
-          observationRadius={observationRadius}
-
-        />
-
+          <ElectricFieldPlot
+            distribution={distribution}
+            radius={radius}
+            observationRadius={observationRadius}
+            surfaceField={E0}
+            electricField={electricField}
+            fieldRatio={fieldRatio}
+            plotMode={plotMode}
+            onPlotModeChange={setPlotMode}
+          />
+        </section>
       </section>
 
-      <section className="panel">
-
-        <h2>Electric Field vs. Radius</h2>
-
-        <ElectricFieldPlot
-          distribution={distribution}
-          radius={radius}
-          observationRadius={observationRadius}
-          surfaceField={E0}
-          electricField={electricField}
-          fieldRatio={fieldRatio}
-          plotMode={plotMode}
-          onPlotModeChange={setPlotMode}
-        />
+      {/* Collapsible explanation of the physics */}
+      <details className="panel notes-panel">
+        <summary>
+          Physics notes &amp; equations
+        </summary>
 
         <PhysicsNotes
           distribution={distribution}
@@ -128,12 +179,9 @@ function App() {
           surfaceField={E0}
           plotMode={plotMode}
         />
-
-      </section>
-
+      </details>
     </main>
   );
 }
 
 export default App;
-
