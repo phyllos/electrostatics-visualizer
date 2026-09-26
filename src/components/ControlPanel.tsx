@@ -89,11 +89,11 @@ export default function ControlPanel({
           </option>
 
           <option value="linear-increasing">
-            Linear Increasing Density
+            Linear Increasing 
           </option>
 
           <option value="quadratic-decreasing">
-            Quadratic Decreasing Density
+            Quadratic Decreasing 
           </option>
 
           <option value="shell">

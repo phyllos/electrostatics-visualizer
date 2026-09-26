@@ -609,11 +609,15 @@ input[type="checkbox"] {
 }
 
 .physics-note h3 {
-  margin: 0 0 10px;
+  margin: 22px 0 10px;
 
   color: var(--text-primary);
 
   font-size: 16px;
+}
+
+.physics-note h3:first-child {
+  margin-top: 0;
 }
 
 .physics-note p {

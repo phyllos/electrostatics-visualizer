@@ -132,59 +132,22 @@ export default function PhysicsNotes({
 
   return (
     <div className="physics-note">
-      <h3>Understanding the Graph</h3>
+      {/* ======================================
+          Selected Model
+          ====================================== */}
 
-      <p>
-        Define the normalized radius{" "}
-        <InlineMath math="x=r/R" />{" "}
-        and the reference field scale
-      </p>
-
-      <div className="physics-equation">
-        <BlockMath
-          math={String.raw`
-            E_0=\frac{k|Q|}{R^2}
-          `}
-        />
-      </div>
-
-      <p>
-        For a spherically symmetric volume charge distribution,
-      </p>
-
-      <div className="physics-equation">
-        <BlockMath
-          math={String.raw`
-            Q_{\mathrm{enc}}(r)
-            =
-            4\pi
-            \int_0^r
-            \rho(r')\,r'^2\,dr'
-          `}
-        />
-      </div>
-
-      <p>
-        Gauss&apos;s law then gives
-      </p>
-
-      <div className="physics-equation">
-        <BlockMath
-          math={String.raw`
-            E(r)\,4\pi r^2
-            =
-            \frac{Q_{\mathrm{enc}}(r)}
-            {\varepsilon_0}
-          `}
-        />
-      </div>
+      <h3>Selected model</h3>
 
       {volumeNote ? (
         <>
-          <h3>{volumeNote.name}</h3>
+          <p>
+            <strong>{volumeNote.name}</strong>
+          </p>
 
           <p>
-            The selected radial charge-density profile is
+            With{" "}
+            <InlineMath math="x=r/R" />,
+            the radial density profile is
           </p>
 
           <div className="physics-equation">
@@ -194,12 +157,7 @@ export default function PhysicsNotes({
           </div>
 
           <p>
-            where{" "}
-            <InlineMath math="x=r/R" />.
-          </p>
-
-          <p>
-            The corresponding enclosed-charge fraction is
+            The enclosed-charge fraction is
           </p>
 
           <div className="physics-equation">
@@ -209,7 +167,7 @@ export default function PhysicsNotes({
           </div>
 
           <p>
-            Therefore the normalized electric field is
+            The corresponding electric field is
           </p>
 
           <div className="physics-equation">
@@ -221,18 +179,19 @@ export default function PhysicsNotes({
           <p>
             {volumeNote.explanation}
           </p>
-
-          <p>
-            At the sphere surface,{" "}
-            <InlineMath math="E(R)=E_0" />.
-          </p>
         </>
       ) : (
         <>
-          <h3>Ideal spherical shell</h3>
+          <p>
+            <strong>
+              Ideal spherical shell
+            </strong>
+          </p>
 
           <p>
-            All charge is concentrated on the spherical surface at <InlineMath math="r=R" />.
+            All charge is concentrated on the
+            spherical surface at{" "}
+            <InlineMath math="r=R" />.
           </p>
 
           <div className="physics-equation">
@@ -242,7 +201,7 @@ export default function PhysicsNotes({
                 =
                 \begin{cases}
                   0, & x<1,\\
-                  1, & x\ge 1.
+                  1, & x\ge 1,
                 \end{cases}
               `}
             />
@@ -262,19 +221,26 @@ export default function PhysicsNotes({
           </div>
 
           <p>
-            The ideal shell has a discontinuity at the surface:{" "}
+            The ideal shell has a discontinuity
+            at the surface:{" "}
             <InlineMath math="E(R^-)=0" />{" "}
-            while{" "}
+            and{" "}
             <InlineMath math="E(R^+)=E_0" />.
           </p>
         </>
       )}
 
+      {/* ======================================
+          Current Scale
+          ====================================== */}
+
       <h3>Current scale</h3>
 
       <p>
-        When <InlineMath math="R" /> ={" "}
-        {radius.toFixed(1)} cm,
+        For the current sphere,
+        {" "}
+        <InlineMath math="R" /> ={" "}
+        {radius.toFixed(1)} cm.
       </p>
 
       <div className="physics-equation">
@@ -282,11 +248,79 @@ export default function PhysicsNotes({
           math={String.raw`
             E_0
             =
+            \frac{k|Q|}{R^2}
+            =
             ${surfaceField.toExponential(3)}
             \ \mathrm{N/C}
           `}
         />
       </div>
+
+      {/* ======================================
+          General Relations
+          ====================================== */}
+
+      <h3>General relations</h3>
+
+      <p>
+        For a spherically symmetric volume
+        charge distribution,
+      </p>
+
+      <div className="physics-equation">
+        <BlockMath
+          math={String.raw`
+            Q_{\mathrm{enc}}(r)
+            =
+            4\pi
+            \int_0^r
+            \rho(r')\,r'^2\,dr'
+          `}
+        />
+      </div>
+
+      <p>
+        Gauss&apos;s law gives
+      </p>
+
+      <div className="physics-equation">
+        <BlockMath
+          math={String.raw`
+            E(r)\,4\pi r^2
+            =
+            \frac{
+              Q_{\mathrm{enc}}(r)
+            }{
+              \varepsilon_0
+            }
+          `}
+        />
+      </div>
+
+      <p>
+        Therefore,
+      </p>
+
+      <div className="physics-equation">
+        <BlockMath
+          math={String.raw`
+            E(r)
+            =
+            \frac{1}{4\pi\varepsilon_0}
+            \frac{
+              Q_{\mathrm{enc}}(r)
+            }{
+              r^2
+            }
+          `}
+        />
+      </div>
+
+      {/* ======================================
+          Plot Interpretation
+          ====================================== */}
+
+      <h3>Plot interpretation</h3>
 
       {plotMode === "normalized" ? (
         <p>
@@ -294,13 +328,17 @@ export default function PhysicsNotes({
           <InlineMath math="r/R" />{" "}
           and{" "}
           <InlineMath math="E/E_0" />.
-          This removes the overall size and field scale 
-          and makes the shape of different charge distributions easier to compare.
+          This removes the overall size and field
+          scale, making the shapes of different
+          charge distributions easier to compare.
         </p>
       ) : (
         <p>
-          The physical plot shows the actual electric field in kN/C as a function of radius in cm.
-          Changing <InlineMath math="R" /> changes the physical field scale through{" "}
+          The physical plot shows the actual
+          electric field in kN/C as a function of
+          radius in cm. Changing{" "}
+          <InlineMath math="R" />{" "}
+          changes the field scale according to{" "}
           <InlineMath math="E_0\propto 1/R^2" />.
         </p>
       )}
