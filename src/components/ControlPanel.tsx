@@ -73,6 +73,7 @@ export default function ControlPanel({
 
           <input
             id="sphere-radius"
+            className="physics-slider"
             type="range"
             min="1"
             max="5"
@@ -102,6 +103,7 @@ export default function ControlPanel({
 
           <input
             id="gaussian-radius"
+            className="physics-slider"
             type="range"
             min="0.05"
             max="10"

@@ -162,15 +162,101 @@ select {
 }
 
 .control select,
-input[type="range"] {
+.physics-slider {
   width: 100%;
 }
 
-input[type="range"] {
-  min-height: 30px;
+/* ==========================================
+   Physics Sliders
+   ========================================== */
+
+.physics-slider {
+  width: 100%;
+  height: 38px;
   margin: 0;
-  accent-color: #2563eb;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: transparent;
+  cursor: pointer;
 }
+
+/* Chrome / Safari / Edge */
+.physics-slider::-webkit-slider-runnable-track {
+  height: 14px;
+
+  background: #e2e8f0;
+
+  border-radius: 999px;
+
+  box-shadow:
+    inset 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.physics-slider::-webkit-slider-thumb {
+  width: 28px;
+  height: 28px;
+
+  margin-top: -7px;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  background: #ffffff;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 50%;
+
+  box-shadow:
+    0 2px 5px rgba(15, 23, 42, 0.20);
+
+  cursor: grab;
+
+  transition:
+    transform 100ms ease,
+    box-shadow 100ms ease;
+}
+
+.physics-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.06);
+
+  box-shadow:
+    0 3px 8px rgba(15, 23, 42, 0.25);
+}
+
+.physics-slider::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1);
+}
+
+/* Firefox */
+.physics-slider::-moz-range-track {
+  height: 14px;
+
+  background: #e2e8f0;
+
+  border-radius: 999px;
+
+  box-shadow:
+    inset 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.physics-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+
+  background: #ffffff;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 50%;
+
+  box-shadow:
+    0 2px 5px rgba(15, 23, 42, 0.20);
+
+  cursor: grab;
+}
+
 
 input[type="checkbox"] {
   accent-color: #2563eb;
@@ -559,4 +645,16 @@ input[type="checkbox"] {
   .axis-lock {
     min-height: 44px;
   }
+
+  .physics-slider::-webkit-slider-thumb {
+    width: 32px;
+    height: 32px;
+    margin-top: -9px;
+  }
+
+  .physics-slider::-moz-range-thumb {
+    width: 32px;
+    height: 32px;
+  }
 }
+
