@@ -59,7 +59,7 @@ export default function ChargeVisualization({
       {/* Charge Distribution Diagram */}
 
       <svg
-        viewBox="0 0 520 520"
+        viewBox="60 60 400 400"
         className="diagram"
         role="img"
         aria-label="Charged sphere and Gaussian surface"

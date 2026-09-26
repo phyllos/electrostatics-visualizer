@@ -19,7 +19,7 @@ import ElectricFieldPlot, {
 
 import "./App.css";
 
-const Q = 5e-9; // Coulombs
+const TOTAL_CHARGE = 5e-9; // Coulombs
 
 function App() {
   const [distribution, setDistribution] =
@@ -34,7 +34,11 @@ function App() {
 
   // Graph display mode
   const [plotMode, setPlotMode] =
-    useState<PlotMode>("normalized");
+    useState<PlotMode>("physical");
+  
+  // Mobile view toggle
+  const [mobileView, setMobileView] = 
+    useState<"field" | "sphere">("field");
 
   // Dimensionless observation radius
   const x = observationRadius / radius;
@@ -43,94 +47,134 @@ function App() {
   const fieldRatio = (t: number) =>
     calculateFieldRatio(distribution, t);
 
-  const enclosedChargeRatio = (t: number) =>
-    calculateEnclosedChargeRatio(distribution, t);
-
-  // Convert cm to meters
-  const R = radius / 100;
-
   // Electric field at the surface
-  const E0 = surfaceFieldMagnitude(Q, R);
+  const E0 = surfaceFieldMagnitude(TOTAL_CHARGE, radius / 100);
 
   const electricField = E0 * fieldRatio(x);
 
-  const enclosedCharge = Q * enclosedChargeRatio(x);
+  const enclosedCharge = TOTAL_CHARGE * calculateEnclosedChargeRatio(distribution, x);
 
 
 
   return (
     <main className="app">
-
-      <header>
+      <header className="app-header">
         <h1>Electrostatics Visualizer</h1>
 
         <p>
-          Explore electric fields and charge distributions
-          interactively.
+          Explore spherical charge distributions and Gauss's law.
         </p>
+
       </header>
+      {/* Live values remain close to the figures and controls. */}
+      <div className="results-bar" aria-label="Current values">
 
-      <section className="layout">
+        <span>
+          <strong>Q</strong> = +5.00 nC{" "}
+          <small>· fixed</small>
+        </span>
 
-        <ControlPanel
+        <span>
+          <strong>r/R</strong> = {x.toFixed(3)}
+        </span>
 
-          distribution={distribution}
+        <span>
+          <strong>|E|</strong> = {(electricField / 1000).toFixed(2)} kN/C
+        </span>
 
-          onDistributionChange={setDistribution}
+        <span>
+          <strong>Q enclosed</strong> = {(enclosedCharge * 1e9).toFixed(3)} nC
+        </span>
 
-          radius={radius}
+      </div>
 
-          onRadiusChange={setRadius}
+      {/* Switching figures preserves the shared parameters. */}
+      <div 
+        className="mobile-view-switch" 
+        role="group" 
+        aria-label="Visible figure"
+      >
+        <button 
+          type="button" 
+          aria-pressed={mobileView === "field"}
+          aria-controls="field-view" 
+          onClick={() => setMobileView("field")}
+        >
+          E(r) graph
+        </button>
 
-          observationRadius={observationRadius}
+        <button 
+          type="button" 
+          aria-pressed={mobileView === "sphere"}
+          aria-controls="sphere-view" 
+          onClick={() => setMobileView("sphere")}
+        >
+          Sphere
+        </button>
+      </div>
 
-          onObservationRadiusChange={setObservationRadius}
+      <section 
+        className="workspace" 
+        data-mobile-view={mobileView}
+      >
+        <div className="controls-view">
 
-          radiusRatio={x}
+          <ControlPanel 
+            distribution={distribution} 
+            onDistributionChange={setDistribution}
+            radius={radius} 
+            onRadiusChange={setRadius} 
+            observationRadius={observationRadius}
+            onObservationRadiusChange={setObservationRadius} 
+          />
 
-          electricField={electricField}
+        </div>
 
-          enclosedCharge={enclosedCharge}
+        <div 
+          className="sphere-view" 
+          id="sphere-view"
+        >
 
-        />
+          <ChargeVisualization 
+            distribution={distribution} 
+            radius={radius}
+            observationRadius={observationRadius} 
+          />
 
+        </div>
+        <section 
+          className="panel field-view" 
+          id="field-view"
+        >
+          <h2>Electric Field vs. Radius</h2>
 
-        <ChargeVisualization
+          <ElectricFieldPlot 
+            distribution={distribution} 
+            radius={radius}
+            observationRadius={observationRadius} 
+            surfaceField={E0}
+            electricField={electricField} 
+            fieldRatio={fieldRatio}
+            plotMode={plotMode} 
+            onPlotModeChange={setPlotMode} 
+          />
 
-          distribution={distribution}
-
-          radius={radius}
-
-          observationRadius={observationRadius}
-
-        />
-
+        </section>
       </section>
 
-      <section className="panel">
+      <details className="panel notes-panel">
+        <summary>
+          Physics notes &amp; equations
+        </summary>
 
-        <h2>Electric Field vs. Radius</h2>
-
-        <ElectricFieldPlot
-          distribution={distribution}
+        <PhysicsNotes 
+          distribution={distribution} 
           radius={radius}
-          observationRadius={observationRadius}
-          surfaceField={E0}
-          electricField={electricField}
-          fieldRatio={fieldRatio}
-          plotMode={plotMode}
-          onPlotModeChange={setPlotMode}
+          surfaceField={E0} 
+          plotMode={plotMode} 
         />
 
-        <PhysicsNotes
-          distribution={distribution}
-          radius={radius}
-          surfaceField={E0}
-          plotMode={plotMode}
-        />
-
-      </section>
-
+      </details>
     </main>
   );
 }

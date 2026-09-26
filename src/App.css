@@ -9,157 +9,446 @@ body {
   font-family: Arial, sans-serif;
 }
 
+button, input, select {
+  font: inherit;
+}
+
+button, select, input[type="range"] {
+  cursor: pointer;
+}
+
+button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
+}
+
 .app {
-  max-width: 1200px;
+  max-width: 1440px;
   margin: auto;
-  padding: 40px 24px;
+  padding: 24px;
 }
 
-header {
-  margin-bottom: 40px;
+.app-header {
+  margin-bottom: 14px;
 }
 
-header h1 {
-  font-size: 36px;
-  margin-bottom: 10px;
+.app-header h1 {
+  margin: 0 0 6px;
+  font-size: clamp(22px, 2.4vw, 30px);
 }
 
-header p {
+.app-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.results-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.results-bar small {
   color: #64748b;
 }
 
-.layout {
+.workspace {
   display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 24px;
+  grid-template-columns: 250px minmax(0, 1fr);
+  grid-template-areas: "controls sphere" "controls field";
+  gap: 14px;
+  align-items: start;
+}
+
+.controls-view {
+  grid-area: controls;
+  min-width: 0;
+}
+
+.sphere-view {
+  grid-area: sphere;
+  min-width: 0;
+}
+
+.field-view {
+  grid-area: field;
+  min-width: 0;
 }
 
 .panel {
   background: white;
-  padding: 28px;
-  border-radius: 14px;
+  padding: 18px;
+  border-radius: 12px;
   border: 1px solid #e2e8f0;
-  margin-bottom: 24px;
+  min-width: 0;
 }
 
 .panel h2 {
-  margin-top: 0;
+  font-size: 17px;
+  margin: 0 0 12px;
 }
 
-label {
-  display: block;
-  margin-top: 24px;
-  margin-bottom: 10px;
+.control {
+  margin-top: 18px;
+  min-width: 0;
+}
+
+.control label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 14px;
   font-weight: 600;
+  margin-bottom: 5px;
 }
 
-select,
-input {
-  width: 100%;
+.control output {
+  font-weight: 400;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
 select {
-  padding: 10px;
-  border-radius: 6px;
+  max-width: 100%;
   border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: white;
+  color: #0f172a;
+  padding: 8px;
+  min-height: 38px;
 }
 
-.results {
-  background: #f1f5f9;
-  padding: 16px;
-  margin-top: 30px;
-  border-radius: 8px;
+.control select, input[type="range"] {
+  width: 100%;
+}
+
+input[type="range"] {
+  margin: 0;
+  min-height: 30px;
+  accent-color: #2563eb;
+}
+
+input[type="checkbox"] {
+  accent-color: #2563eb;
+}
+
+.range-limits {
+  display: flex;
+  justify-content: space-between;
+  color: #64748b;
+  font-size: 11px;
 }
 
 .diagram {
   display: block;
   width: 100%;
-  max-width: 420px;
-  margin: auto;
+  height: 210px;
 }
 
 .plot {
   display: block;
   width: 100%;
-  max-width: 850px;
+  min-width: 0;
+  height: 250px;
+}
+
+.plot text {
+  font-family: Arial, sans-serif;
+  fill: #334155;
+  font-size: 12px;
+}
+
+.plot-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin: 0 0 8px;
+}
+
+.plot-controls label {
+  font-size: 13px;
+}
+
+.plot-controls select {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.axis-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.axis-lock {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  cursor: pointer;
+}
+
+.view-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.subtle-button {
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: white;
+  color: #334155;
+  padding: 6px 10px;
+  min-height: 32px;
 }
 
 .caption {
-  text-align: center;
   color: #64748b;
-}
-
-@media (max-width: 700px) {
-
-  .layout {
-    grid-template-columns: 1fr;
-  }
-
-  .app {
-    padding: 20px 12px;
-  }
-
+  font-size: 12px;
+  text-align: center;
 }
 
 .caption p {
   margin: 6px 0;
 }
 
-.caption-note {
-  margin-top: 14px !important;
+.diagram-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 6px;
+}
+
+.legend-line {
+  display: inline-block;
+  width: 14px;
+  border-top: 2px solid #e11d48;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.legend-gaussian {
+  border-color: #2563eb;
+  border-top-style: dashed;
+}
+
+.view-notice {
+  margin: 6px 0 0;
+  color: #92400e;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.mobile-view-switch {
+  display: none;
+}
+
+.notes-panel {
+  margin-top: 14px;
+}
+
+.notes-panel summary {
+  cursor: pointer;
   font-size: 14px;
-  color: #64748b;
-  line-height: 1.5;
+  font-weight: 600;
 }
 
 .physics-note {
-  margin-top: 24px;
-  padding: 20px 24px;
-
-  background: #f8fafc;
-
-  border-left: 4px solid #2563eb;
-  border-radius: 8px;
-
-  font-size: 15px;
-  line-height: 1.7;
+  margin-top: 16px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .physics-note h3 {
-  margin-top: 0;
-  margin-bottom: 12px;
+  margin: 0 0 10px;
+  color: #0f172a;
+  font-size: 16px;
 }
 
 .physics-note p {
-  color: #475569;
   margin: 8px 0;
 }
 
 .physics-equation {
-  font-size: 20px;
-
   text-align: center;
-  padding: 14px;
-
   color: #1d4ed8;
-
   overflow-x: auto;
+  padding: 4px;
 }
 
-.plot-controls {
-  display: flex;
-  align-items: center;
-  gap: 16px;
+@media (min-width: 760px) and (max-width: 1099px) {
+  .charge-panel {
+    display: grid;
+    grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
+    column-gap: 14px;
+  }
 
-  margin: 18px 0 24px;
+  .charge-panel h2 {
+    grid-column: 1 / -1;
+  }
+
+  .charge-panel > div:first-of-type {
+    grid-column: 1;
+    grid-row: 2 / 5;
+  }
+
+  .charge-panel .diagram-legend, .charge-panel .view-controls, .charge-panel p {
+    grid-column: 2;
+  }
 }
 
-.plot-controls label {
-  margin: 0;
-  white-space: nowrap;
+@media (min-width: 1100px) {
+  .workspace {
+    grid-template-columns: 240px minmax(240px, 0.85fr) minmax(360px, 1.3fr);
+    grid-template-areas: "controls sphere field";
+    align-items: stretch;
+  }
+
+  .controls-view > .panel, .sphere-view > .panel {
+    height: 100%;
+  }
+
+  .diagram {
+    height: 250px;
+  }
 }
 
-.plot-controls select {
-  width: auto;
-  min-width: 220px;
+@media (max-width: 759px) {
+  .app {
+    padding: 14px 12px;
+  }
+
+  .app-header p {
+    display: none;
+  }
+
+  .results-bar {
+    gap: 5px 16px;
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "figure" "controls";
+    gap: 10px;
+  }
+
+  .sphere-view, .field-view {
+    grid-area: figure;
+  }
+
+  .workspace[data-mobile-view="field"] .sphere-view, .workspace[data-mobile-view="sphere"] .field-view {
+    display: none;
+  }
+
+  .mobile-view-switch {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .mobile-view-switch button {
+    flex: 1;
+    min-height: 40px;
+    padding: 7px 12px;
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 7px;
+    color: #334155;
+  }
+
+  .mobile-view-switch button[aria-pressed="true"] {
+    background: #0f172a;
+    color: white;
+    border-color: #0f172a;
+  }
+
+  .panel {
+    padding: 12px;
+  }
+
+  .panel h2 {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .control-panel h2 {
+    display: none;
+  }
+
+  .control {
+    margin-top: 10px;
+  }
+
+  .distribution-control {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 12px;
+    margin-top: 0;
+  }
+
+  .distribution-control label {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  .distribution-control select {
+    width: auto;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .slider-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .control label {
+    font-size: 13px;
+  }
+
+  .slider-controls label {
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  select, .plot-controls select {
+    font-size: 16px;
+  }
+
+  .range-limits {
+    display: none;
+  }
+
+  .notes-panel {
+    margin-top: 10px;
+  }
+}
+
+@media (pointer: coarse) {
+  button, select, input[type="range"], .axis-lock {
+    min-height: 44px;
+  }
 }
