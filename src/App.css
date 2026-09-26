@@ -1,3 +1,8 @@
+
+/* ==========================================
+   Global Styles
+   ========================================== */
+
 * {
   box-sizing: border-box;
 }
@@ -9,18 +14,30 @@ body {
   font-family: Arial, sans-serif;
 }
 
-button, input, select {
+button,
+input,
+select {
   font: inherit;
 }
 
-button, select, input[type="range"] {
+button,
+select,
+input[type="range"] {
   cursor: pointer;
 }
 
-button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible {
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+summary:focus-visible {
   outline: 3px solid #93c5fd;
   outline-offset: 3px;
 }
+
+
+/* ==========================================
+   App Layout
+   ========================================== */
 
 .app {
   max-width: 1440px;
@@ -43,6 +60,11 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   font-size: 14px;
 }
 
+
+/* ==========================================
+   Current Results
+   ========================================== */
+
 .results-bar {
   display: flex;
   flex-wrap: wrap;
@@ -56,10 +78,17 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   color: #64748b;
 }
 
+
+/* ==========================================
+   Main Workspace
+   ========================================== */
+
 .workspace {
   display: grid;
   grid-template-columns: 250px minmax(0, 1fr);
-  grid-template-areas: "controls sphere" "controls field";
+  grid-template-areas:
+    "controls sphere"
+    "controls field";
   gap: 14px;
   align-items: start;
 }
@@ -79,31 +108,41 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
   min-width: 0;
 }
 
+
+/* ==========================================
+   Panels
+   ========================================== */
+
 .panel {
-  background: white;
-  padding: 18px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
   min-width: 0;
+  padding: 18px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
 }
 
 .panel h2 {
-  font-size: 17px;
   margin: 0 0 12px;
+  font-size: 17px;
 }
 
+
+/* ==========================================
+   Controls
+   ========================================== */
+
 .control {
-  margin-top: 18px;
   min-width: 0;
+  margin-top: 18px;
 }
 
 .control label {
   display: flex;
   justify-content: space-between;
   gap: 8px;
+  margin-bottom: 5px;
   font-size: 14px;
   font-weight: 600;
-  margin-bottom: 5px;
 }
 
 .control output {
@@ -114,21 +153,22 @@ button:focus-visible, select:focus-visible, input:focus-visible, summary:focus-v
 
 select {
   max-width: 100%;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
+  min-height: 38px;
+  padding: 8px;
   background: white;
   color: #0f172a;
-  padding: 8px;
-  min-height: 38px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
 }
 
-.control select, input[type="range"] {
+.control select,
+input[type="range"] {
   width: 100%;
 }
 
 input[type="range"] {
-  margin: 0;
   min-height: 30px;
+  margin: 0;
   accent-color: #2563eb;
 }
 
@@ -143,11 +183,78 @@ input[type="checkbox"] {
   font-size: 11px;
 }
 
+
+/* ==========================================
+   Charge Visualization
+   ========================================== */
+
 .diagram {
   display: block;
   width: 100%;
   height: 210px;
 }
+
+.view-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.subtle-button {
+  min-height: 32px;
+  padding: 6px 10px;
+  background: white;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+}
+
+.caption {
+  color: #64748b;
+  font-size: 12px;
+  text-align: center;
+}
+
+.caption p {
+  margin: 6px 0;
+}
+
+.diagram-legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin-top: 6px;
+}
+
+.legend-line {
+  display: inline-block;
+  width: 14px;
+  margin-right: 4px;
+  border-top: 2px solid #e11d48;
+  vertical-align: middle;
+}
+
+.legend-gaussian {
+  border-color: #2563eb;
+  border-top-style: dashed;
+}
+
+.view-notice {
+  margin: 6px 0 0;
+  color: #92400e;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+
+/* ==========================================
+   Electric Field Plot
+   ========================================== */
 
 .plot {
   display: block;
@@ -157,8 +264,8 @@ input[type="checkbox"] {
 }
 
 .plot text {
-  font-family: Arial, sans-serif;
   fill: #334155;
+  font-family: Arial, sans-serif;
   font-size: 12px;
 }
 
@@ -183,12 +290,12 @@ input[type="checkbox"] {
 .axis-controls {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
-  flex-wrap: wrap;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 6px;
-  font-size: 12px;
   color: #475569;
+  font-size: 12px;
 }
 
 .axis-lock {
@@ -199,66 +306,19 @@ input[type="checkbox"] {
   cursor: pointer;
 }
 
-.view-controls {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-top: 6px;
-  color: #64748b;
-  font-size: 12px;
-}
 
-.subtle-button {
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  background: white;
-  color: #334155;
-  padding: 6px 10px;
-  min-height: 32px;
-}
-
-.caption {
-  color: #64748b;
-  font-size: 12px;
-  text-align: center;
-}
-
-.caption p {
-  margin: 6px 0;
-}
-
-.diagram-legend {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 6px 14px;
-  margin-top: 6px;
-}
-
-.legend-line {
-  display: inline-block;
-  width: 14px;
-  border-top: 2px solid #e11d48;
-  vertical-align: middle;
-  margin-right: 4px;
-}
-
-.legend-gaussian {
-  border-color: #2563eb;
-  border-top-style: dashed;
-}
-
-.view-notice {
-  margin: 6px 0 0;
-  color: #92400e;
-  font-size: 12px;
-  line-height: 1.4;
-}
+/* ==========================================
+   Mobile Figure Switch
+   ========================================== */
 
 .mobile-view-switch {
   display: none;
 }
+
+
+/* ==========================================
+   Physics Notes
+   ========================================== */
 
 .notes-panel {
   margin-top: 14px;
@@ -288,16 +348,24 @@ input[type="checkbox"] {
 }
 
 .physics-equation {
-  text-align: center;
-  color: #1d4ed8;
-  overflow-x: auto;
   padding: 4px;
+  overflow-x: auto;
+  color: #1d4ed8;
+  text-align: center;
 }
+
+
+/* ==========================================
+   Tablet Layout
+   760px – 1099px
+   ========================================== */
 
 @media (min-width: 760px) and (max-width: 1099px) {
   .charge-panel {
     display: grid;
-    grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
+    grid-template-columns:
+      minmax(150px, 220px)
+      minmax(0, 1fr);
     column-gap: 14px;
   }
 
@@ -310,19 +378,34 @@ input[type="checkbox"] {
     grid-row: 2 / 5;
   }
 
-  .charge-panel .diagram-legend, .charge-panel .view-controls, .charge-panel p {
+  .charge-panel .diagram-legend,
+  .charge-panel .view-controls,
+  .charge-panel p {
     grid-column: 2;
   }
 }
 
+
+/* ==========================================
+   Desktop Layout
+   1100px and above
+   ========================================== */
+
 @media (min-width: 1100px) {
   .workspace {
-    grid-template-columns: 240px minmax(240px, 0.85fr) minmax(360px, 1.3fr);
-    grid-template-areas: "controls sphere field";
+    grid-template-columns:
+      240px
+      minmax(240px, 0.85fr)
+      minmax(360px, 1.3fr);
+
+    grid-template-areas:
+      "controls sphere field";
+
     align-items: stretch;
   }
 
-  .controls-view > .panel, .sphere-view > .panel {
+  .controls-view > .panel,
+  .sphere-view > .panel {
     height: 100%;
   }
 
@@ -330,6 +413,12 @@ input[type="checkbox"] {
     height: 250px;
   }
 }
+
+
+/* ==========================================
+   Mobile Layout
+   Below 760px
+   ========================================== */
 
 @media (max-width: 759px) {
   .app {
@@ -342,21 +431,26 @@ input[type="checkbox"] {
 
   .results-bar {
     gap: 5px 16px;
-    font-size: 12px;
     margin-bottom: 12px;
+    font-size: 12px;
   }
 
+  /* Show one figure at a time above the controls */
   .workspace {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas: "figure" "controls";
+    grid-template-areas:
+      "figure"
+      "controls";
     gap: 10px;
   }
 
-  .sphere-view, .field-view {
+  .sphere-view,
+  .field-view {
     grid-area: figure;
   }
 
-  .workspace[data-mobile-view="field"] .sphere-view, .workspace[data-mobile-view="sphere"] .field-view {
+  .workspace[data-mobile-view="field"] .sphere-view,
+  .workspace[data-mobile-view="sphere"] .field-view {
     display: none;
   }
 
@@ -371,9 +465,9 @@ input[type="checkbox"] {
     min-height: 40px;
     padding: 7px 12px;
     background: white;
+    color: #334155;
     border: 1px solid #cbd5e1;
     border-radius: 7px;
-    color: #334155;
   }
 
   .mobile-view-switch button[aria-pressed="true"] {
@@ -387,8 +481,8 @@ input[type="checkbox"] {
   }
 
   .panel h2 {
-    font-size: 15px;
     margin-bottom: 8px;
+    font-size: 15px;
   }
 
   .control-panel h2 {
@@ -399,6 +493,7 @@ input[type="checkbox"] {
     margin-top: 10px;
   }
 
+  /* Keep the distribution selector compact on mobile */
   .distribution-control {
     display: flex;
     flex-wrap: wrap;
@@ -414,14 +509,17 @@ input[type="checkbox"] {
   }
 
   .distribution-control select {
-    width: auto;
     flex: 1;
+    width: auto;
     min-width: 180px;
   }
 
+  /* Place both radius sliders side by side */
   .slider-controls {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
     gap: 14px;
   }
 
@@ -434,7 +532,9 @@ input[type="checkbox"] {
     gap: 3px;
   }
 
-  select, .plot-controls select {
+  /* Prevent mobile browsers from zooming into form controls */
+  select,
+  .plot-controls select {
     font-size: 16px;
   }
 
@@ -447,8 +547,16 @@ input[type="checkbox"] {
   }
 }
 
+
+/* ==========================================
+   Touch Devices
+   ========================================== */
+
 @media (pointer: coarse) {
-  button, select, input[type="range"], .axis-lock {
+  button,
+  select,
+  input[type="range"],
+  .axis-lock {
     min-height: 44px;
   }
 }
