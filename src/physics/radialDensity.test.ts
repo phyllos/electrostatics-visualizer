@@ -413,44 +413,6 @@ describe(
     );
   },
 );
-describe(
-  "Charge sign",
-  () => {
-    it(
-      "preserves the sign of a negative total charge",
-      () => {
-        const Q = -5e-9;
-        const R = 0.02;
-
-        expect(
-          densityScale(
-            "uniform",
-            Q,
-            R,
-          ),
-        ).toBeLessThan(0);
-
-        expect(
-          densityAt(
-            "uniform",
-            Q,
-            R,
-            R / 2,
-          ),
-        ).toBeLessThan(0);
-
-        expect(
-          enclosedCharge(
-            "uniform",
-            Q,
-            R,
-            R / 2,
-          ),
-        ).toBeLessThan(0);
-      },
-    );
-  },
-);
 
 // ==========================================
 // Charge Sign

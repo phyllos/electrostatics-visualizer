@@ -4,6 +4,7 @@ import { useId, useState } from "react";
 import type { SphericalDistribution } from "../physics/sphere";
 import { densityShape } from "../physics/radialDensity";
 import { useElementWidth } from "../hooks/useElementWidth";
+import { InlineMath } from "react-katex";
 
 type ChargeVisualizationProps = {
   distribution: SphericalDistribution;
@@ -278,9 +279,14 @@ export default function ChargeVisualization({
       )}
 
       <p className="caption">
-        {distribution.kind === "volume"
-          ? "Fill intensity ∝ relative charge density ρ(r)/ρ₀"
-          : "Charge is concentrated on the spherical surface"}
+        {distribution.kind === "volume" ? (
+          <>
+            Fill intensity represents relative density{" "}
+            <InlineMath math="\rho(r)/\rho_0" />
+          </>
+        ) : (
+          "Charge is concentrated on the spherical surface"
+        )}
       </p>
     </section>
   );
