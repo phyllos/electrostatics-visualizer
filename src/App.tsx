@@ -56,13 +56,6 @@ function App() {
 
   const enclosedCharge = Q * enclosedChargeRatio(x);
 
-  // ==========================================
-  // Electric Field Plot
-  // ==========================================
-
-
-
-// Visualization, Physics notes and ControlPanel in components/.
 
 
   return (
@@ -93,7 +86,7 @@ function App() {
 
           onObservationRadiusChange={setObservationRadius}
 
-          fieldRatio={x}
+          radiusRatio={x}
 
           electricField={electricField}
 
@@ -130,13 +123,10 @@ function App() {
         />
 
         <PhysicsNotes
-
+          distribution={distribution}
           radius={radius}
-
           surfaceField={E0}
-
           plotMode={plotMode}
-
         />
 
       </section>

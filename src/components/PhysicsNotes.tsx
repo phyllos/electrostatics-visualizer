@@ -5,19 +5,20 @@ import {
   BlockMath
 } from "react-katex";
 
+import type { ChargeDistribution } from "../physics/sphere";
 
 // ==========================================
 // Component Props
 // ==========================================
 
 type PhysicsNotesProps = {
+  distribution: ChargeDistribution;
 
   radius: number;
 
   surfaceField: number;
 
   plotMode: "normalized" | "physical";
-
 };
 
 
@@ -27,6 +28,7 @@ type PhysicsNotesProps = {
 
 export default function PhysicsNotes({
 
+  distribution,
   radius,
   surfaceField,
   plotMode,
@@ -40,13 +42,11 @@ export default function PhysicsNotes({
       <h3>Understanding the Graph</h3>
 
 
-      {/* Surface Electric Field */}
+      {/* Reference Electric Field */}
 
       <p>
 
-        The electric field is normalized by
-        its magnitude at the sphere's surface:
-
+        The electric field is normalized using the reference field scale:
       </p>
 
 
@@ -59,6 +59,22 @@ export default function PhysicsNotes({
         />
 
       </div>
+
+      {/* Boundary Behavior */}
+
+      {distribution === "solid" ? (
+        <p>
+          For a uniformly charged solid sphere,{" "}
+          <InlineMath math="E(R) = E_0" />.
+        </p>
+      ) : (
+        <p>
+          For an ideal spherical shell,{" "}
+          <InlineMath math="E(R^-) = 0" />{" "}
+          and{" "}
+          <InlineMath math="E(R^+) = E_0" />.
+        </p>
+      )}
 
 
       {/* Dynamic Surface Field */}

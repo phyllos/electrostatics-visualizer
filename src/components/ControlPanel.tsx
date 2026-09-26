@@ -35,7 +35,7 @@ type ControlPanelProps = {
 
   // Calculated physics results
 
-  fieldRatio: number;
+  radiusRatio: number;
 
   electricField: number;
 
@@ -59,7 +59,7 @@ export default function ControlPanel({
   observationRadius,
   onObservationRadiusChange,
 
-  fieldRatio,
+  radiusRatio,
   electricField,
   enclosedCharge,
 
@@ -157,7 +157,7 @@ export default function ControlPanel({
         <h3>Results</h3>
 
         <p>
-          r/R = {fieldRatio.toFixed(3)}
+          r/R = {radiusRatio.toFixed(3)}
         </p>
 
         <p>

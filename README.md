@@ -25,19 +25,25 @@ https://phyllos.github.io/electrostatics-visualizer/
 
 ### Installation
 
+```bash
 git clone https://github.com/phyllos/electrostatics-visualizer.git
 cd electrostatics-visualizer
 npm install
+```
 
 ### Development
 
+```bash
 npm run dev
+```
 
 Open the local URL displayed in the terminal.
 
 ### Build
 
+```bash
 npm run build
+```
 
 ## Technologies
 
