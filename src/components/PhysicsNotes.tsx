@@ -36,7 +36,7 @@ export default function PhysicsNotes({
       {/* Field behavior at the sphere surface */}
       {distribution.kind === "volume" ? (
         <p>
-          For a uniformly charged solid sphere,{" "}
+          For a spherically symmetric volume charge distribution,{" "}
           <InlineMath math="E(R) = E_0" />.
         </p>
       ) : (

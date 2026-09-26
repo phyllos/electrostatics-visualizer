@@ -51,25 +51,49 @@ export default function ControlPanel({
           value={
             distribution.kind === "shell"
               ? "shell"
-              : "uniform"
+              : distribution.densityModel
           }
           onChange={(event) => {
-            if (event.target.value === "shell") {
-              onDistributionChange({
-                kind: "shell",
-              });
+            switch (event.target.value) {
+              case "uniform":
+                onDistributionChange({
+                  kind: "volume",
+                  densityModel: "uniform",
+                });
+                break;
 
-              return;
+              case "linear-increasing":
+                onDistributionChange({
+                  kind: "volume",
+                  densityModel: "linear-increasing",
+                });
+                break;
+
+              case "quadratic-decreasing":
+                onDistributionChange({
+                  kind: "volume",
+                  densityModel: "quadratic-decreasing",
+                });
+                break;
+
+              case "shell":
+                onDistributionChange({
+                  kind: "shell",
+                });
+                break;
             }
-
-            onDistributionChange({
-              kind: "volume",
-              densityModel: "uniform",
-            });
           }}
         >
           <option value="uniform">
             Uniform Solid Sphere
+          </option>
+
+          <option value="linear-increasing">
+            Linear Increasing Density
+          </option>
+
+          <option value="quadratic-decreasing">
+            Quadratic Decreasing Density
           </option>
 
           <option value="shell">
