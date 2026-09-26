@@ -15,6 +15,9 @@ https://phyllos.github.io/electrostatics-visualizer/
 - Normalized and physical electric field plots
 - Dynamic electric field and enclosed charge calculations
 - Mathematical equations rendered with KaTeX
+- Responsive desktop and mobile layout
+- Responsive electric field plots with lockable axes
+- Automatic light and dark themes
 
 ## Getting Started
 
