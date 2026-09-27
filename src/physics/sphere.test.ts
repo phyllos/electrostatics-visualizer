@@ -7,10 +7,20 @@ import {
 } from "vitest";
 
 import {
-  fieldRatio,
   enclosedChargeRatio,
-  surfaceFieldMagnitude
+  fieldRatio,
+  surfaceFieldMagnitude,
+  type SphericalDistribution,
 } from "./sphere";
+
+const uniformSphere: SphericalDistribution = {
+  kind: "volume",
+  densityModel: "uniform",
+};
+
+const shell: SphericalDistribution = {
+  kind: "shell",
+};
 
 
 // ==========================================
@@ -22,7 +32,7 @@ describe("Uniform Solid Sphere", () => {
   it("has zero electric field at the center", () => {
 
     expect(
-      fieldRatio("solid", 0)
+      fieldRatio(uniformSphere, 0)
     ).toBe(0);
 
   });
@@ -30,7 +40,7 @@ describe("Uniform Solid Sphere", () => {
   it("has E0/2 at r = R/2", () => {
 
     expect(
-      fieldRatio("solid", 0.5)
+      fieldRatio(uniformSphere, 0.5)
     ).toBeCloseTo(0.5);
 
   });
@@ -38,7 +48,7 @@ describe("Uniform Solid Sphere", () => {
   it("has E0 at r = R", () => {
 
     expect(
-      fieldRatio("solid", 1)
+      fieldRatio(uniformSphere, 1)
     ).toBeCloseTo(1);
 
   });
@@ -46,7 +56,7 @@ describe("Uniform Solid Sphere", () => {
   it("has E0/4 at r = 2R", () => {
 
     expect(
-      fieldRatio("solid", 2)
+      fieldRatio(uniformSphere, 2)
     ).toBeCloseTo(0.25);
 
   });
@@ -54,7 +64,7 @@ describe("Uniform Solid Sphere", () => {
   it("encloses Q/8 at r = R/2", () => {
 
     expect(
-      enclosedChargeRatio("solid", 0.5)
+      enclosedChargeRatio(uniformSphere, 0.5)
     ).toBeCloseTo(0.125);
 
   });
@@ -62,7 +72,7 @@ describe("Uniform Solid Sphere", () => {
   it("encloses all charge at r >= R", () => {
 
     expect(
-      enclosedChargeRatio("solid", 2)
+      enclosedChargeRatio(uniformSphere, 2)
     ).toBe(1);
 
   });
@@ -79,7 +89,7 @@ describe("Uniform Spherical Shell", () => {
   it("has zero electric field inside", () => {
 
     expect(
-      fieldRatio("shell", 0.5)
+      fieldRatio(shell, 0.5)
     ).toBe(0);
 
   });
@@ -87,7 +97,7 @@ describe("Uniform Spherical Shell", () => {
   it("has E0/4 at r = 2R", () => {
 
     expect(
-      fieldRatio("shell", 2)
+      fieldRatio(shell, 2)
     ).toBeCloseTo(0.25);
 
   });
@@ -95,7 +105,7 @@ describe("Uniform Spherical Shell", () => {
   it("encloses no charge inside", () => {
 
     expect(
-      enclosedChargeRatio("shell", 0.5)
+      enclosedChargeRatio(shell, 0.5)
     ).toBe(0);
 
   });
@@ -103,7 +113,7 @@ describe("Uniform Spherical Shell", () => {
   it("encloses all charge outside", () => {
 
     expect(
-      enclosedChargeRatio("shell", 2)
+      enclosedChargeRatio(shell, 2)
     ).toBe(1);
 
   });
@@ -142,3 +152,62 @@ describe("Surface Electric Field", () => {
   });
 
 });
+
+// ==========================================
+// Integration tests
+// ==========================================
+
+describe(
+  "Nonuniform volume distributions",
+  () => {
+    it(
+      "supports linearly increasing density",
+      () => {
+        const distribution: SphericalDistribution = {
+          kind: "volume",
+          densityModel: "linear-increasing",
+        };
+
+        expect(
+          enclosedChargeRatio(
+            distribution,
+            0.5,
+          ),
+        ).toBeCloseTo(
+          0.5 ** 4,
+        );
+
+        expect(
+          fieldRatio(
+            distribution,
+            0.5,
+          ),
+        ).toBeCloseTo(
+          0.5 ** 2,
+        );
+      },
+    );
+
+    it(
+      "supports quadratically decreasing density",
+      () => {
+        const distribution: SphericalDistribution = {
+          kind: "volume",
+          densityModel: "quadratic-decreasing",
+        };
+
+        const x = 0.5;
+
+        expect(
+          fieldRatio(
+            distribution,
+            x,
+          ),
+        ).toBeCloseTo(
+          (5 / 2) * x -
+          (3 / 2) * x ** 3,
+        );
+      },
+    );
+  },
+);

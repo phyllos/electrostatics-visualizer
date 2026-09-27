@@ -1,6 +1,6 @@
 // src/components/ControlPanel.tsx
 
-import type { ChargeDistribution } from "../physics/sphere";
+import type { SphericalDistribution } from "../physics/sphere";
 
 // ==========================================
 // Component Props
@@ -8,9 +8,9 @@ import type { ChargeDistribution } from "../physics/sphere";
 
 type ControlPanelProps = {
   // Charge distribution
-  distribution: ChargeDistribution;
+  distribution: SphericalDistribution;
   onDistributionChange: (
-    value: ChargeDistribution,
+    value: SphericalDistribution,
   ) => void;
 
   // Sphere radius (cm)
@@ -48,16 +48,52 @@ export default function ControlPanel({
 
         <select
           id="charge-distribution"
-          value={distribution}
-          onChange={(event) =>
-            onDistributionChange(
-              event.target
-                .value as ChargeDistribution,
-            )
+          value={
+            distribution.kind === "shell"
+              ? "shell"
+              : distribution.densityModel
           }
+          onChange={(event) => {
+            switch (event.target.value) {
+              case "uniform":
+                onDistributionChange({
+                  kind: "volume",
+                  densityModel: "uniform",
+                });
+                break;
+
+              case "linear-increasing":
+                onDistributionChange({
+                  kind: "volume",
+                  densityModel: "linear-increasing",
+                });
+                break;
+
+              case "quadratic-decreasing":
+                onDistributionChange({
+                  kind: "volume",
+                  densityModel: "quadratic-decreasing",
+                });
+                break;
+
+              case "shell":
+                onDistributionChange({
+                  kind: "shell",
+                });
+                break;
+            }
+          }}
         >
-          <option value="solid">
+          <option value="uniform">
             Uniform Solid Sphere
+          </option>
+
+          <option value="linear-increasing">
+            Linear Increasing 
+          </option>
+
+          <option value="quadratic-decreasing">
+            Quadratic Decreasing 
           </option>
 
           <option value="shell">

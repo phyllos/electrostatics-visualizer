@@ -4,7 +4,7 @@ import {
   fieldRatio as calculateFieldRatio,
   enclosedChargeRatio as calculateEnclosedChargeRatio,
   surfaceFieldMagnitude,
-  type ChargeDistribution,
+  type SphericalDistribution,
 } from "./physics/sphere";
 
 import ControlPanel from "./components/ControlPanel";
@@ -20,7 +20,10 @@ const TOTAL_CHARGE = 5e-9; // Coulombs
 
 function App() {
   const [distribution, setDistribution] =
-    useState<ChargeDistribution>("solid");
+    useState<SphericalDistribution>({ 
+      kind: "volume", 
+      densityModel: "uniform"
+    });
 
   // Sphere radius in cm
   const [radius, setRadius] = useState(2);
