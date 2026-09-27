@@ -18,9 +18,9 @@ https://phyllos.github.io/electrostatics-visualizer/
 
 For spherical volume charge distributions, define
 
-$$
+```math
 x = \frac{r}{R}.
-$$
+```
 
 The current models are:
 
@@ -32,22 +32,22 @@ The total charge $Q$ is fixed while the radial density profile changes.
 
 For a spherically symmetric volume charge distribution,
 
-$$
+```math
 Q_{\mathrm{enc}}(r)
 =
 4\pi
 \int_0^r
 \rho(r')\,r'^2\,dr'.
-$$
+```
 
 Gauss's law gives
 
-$$
+```math
 E(r)
 =
 \frac{1}{4\pi\varepsilon_0}
 \frac{Q_{\mathrm{enc}}(r)}{r^2}.
-$$
+```
 
 Outside the sphere, the field follows the same $1/r^2$ dependence for all supported spherical distributions.
 
