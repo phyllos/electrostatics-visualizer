@@ -5,6 +5,8 @@ import type { SphericalDistribution } from "../physics/sphere";
 import { densityShape } from "../physics/radialDensity";
 import { useElementWidth } from "../hooks/useElementWidth";
 import { InlineMath } from "react-katex";
+import DensityProfileMini from "./DensityProfileMini";
+import type { RadialDensityModel } from "../physics/radialDensity";
 
 type ChargeVisualizationProps = {
   distribution: SphericalDistribution;
@@ -13,6 +15,27 @@ type ChargeVisualizationProps = {
 };
 
 const DENSITY_STOP_COUNT = 21;
+
+function densityFormula(
+  model: RadialDensityModel,
+): string {
+  switch (model) {
+    case "uniform":
+      return String.raw`
+        \rho/\rho_0 = 1
+      `;
+
+    case "linear-increasing":
+      return String.raw`
+        \rho/\rho_0 = x
+      `;
+
+    case "quadratic-decreasing":
+      return String.raw`
+        \rho/\rho_0 = 1-x^2
+      `;
+  }
+}
 
 export default function ChargeVisualization({
   distribution,
@@ -278,16 +301,32 @@ export default function ChargeVisualization({
         </p>
       )}
 
-      <p className="caption">
-        {distribution.kind === "volume" ? (
-          <>
-            Fill intensity represents relative density{" "}
-            <InlineMath math="\rho(r)/\rho_0" />
-          </>
-        ) : (
-          "Charge is concentrated on the spherical surface"
-        )}
-      </p>
+      {distribution.kind === "volume" ? (
+        <div className="density-summary">
+          <div className="density-summary-text">
+            <span className="density-summary-label">
+              Relative density · x = r/R
+            </span>
+
+            <InlineMath
+              math={densityFormula(
+                distribution.densityModel,
+              )}
+            />
+          </div>
+
+          <DensityProfileMini
+            model={distribution.densityModel}
+            observationRatio={
+              observationRadius / radius
+            }
+          />
+        </div>
+      ) : (
+        <p className="caption">
+          Charge is concentrated on the spherical surface
+        </p>
+      )}
     </section>
   );
 }

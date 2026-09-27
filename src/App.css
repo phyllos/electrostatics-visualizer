@@ -502,6 +502,56 @@ input[type="checkbox"] {
   line-height: 1.4;
 }
 
+.density-summary {
+  display: flex;
+
+  align-items: flex-end;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  margin-top: 6px;
+
+  color: var(--text-secondary);
+
+  flex-wrap: wrap;
+}
+
+.density-summary-text {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  flex: 1 1 130px;
+  min-width: 0;
+
+  font-size: 12px;
+}
+
+.density-summary-label {
+  color: var(--text-muted);
+
+  font-size: 11px;
+
+  white-space: nowrap;
+}
+
+.density-summary-text .katex {
+  font-size: 1.1em;
+}
+
+.density-profile-mini {
+  display: block;
+
+  width: 96px;
+  height: 34px;
+
+  flex: 0 0 96px;
+
+  margin-left: auto;
+}
+
 
 /* ==========================================
    Electric Field Plot
@@ -662,6 +712,7 @@ input[type="checkbox"] {
 
   .charge-panel .diagram-legend,
   .charge-panel .view-controls,
+  .charge-panel .density-summary,
   .charge-panel p {
     grid-column: 2;
   }
